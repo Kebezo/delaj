@@ -1,0 +1,54 @@
+
+{% block title %}
+{% endblock %}
+
+{% block content%}
+
+
+<head>
+    <meta charset="UTF-8">
+    <title>Koledar</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.min.js"></script>
+    <style>
+     .selectedDate
+{
+  background-color: #00FA36 !important;
+}
+}
+
+
+   </style>
+</head>
+<body>
+    <div id="calendar"></div>
+    <script>
+
+        let calendarEl = document.getElementById('calendar');
+        let calendar = new FullCalendar.Calendar(calendarEl, {
+            aspectRatio : 2,
+            locale: 'sl',
+            contentHeight: 600,
+
+        });
+        calendar.render();
+        calendar.on('dateClick', function(info) {
+        console.log('clicked on ' + info.dateStr);
+        var date = info.dateStr
+
+        var days = document.querySelectorAll(".selectedDate");
+      days.forEach(function(day) {
+        day.classList.remove("selectedDate");
+      });
+      info.dayEl.classList.add("selectedDate");
+        document.getElementById("datum_form").value = info.dateStr;
+        //location.replace("http://127.0.0.1:5000/home");
+
+        });
+
+
+    </script>
+
+</body>
+
+{% endblock %}
