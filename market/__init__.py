@@ -4,8 +4,8 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://qwolcamhdlxiyk:18f14a174f5910629e9a5b31a27ebfc7225f6e6e3956d110512061d22393324b@ec2-3-93-206-109.compute-1.amazonaws.com:5432/db1crkutmj8i5a'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://qszufkbkhbrbfr:809d522b23bad496eccc9e86d31c7e251308eb32663cc3bf9c7b4e564ae0bedd@ec2-34-199-68-114.compute-1.amazonaws.com:5432/d5bb8o015bpf4i'
 #randomly genereirano hexadecimal stevilo
 app.config['SECRET_KEY'] = '52627e432fe1def0e3834e53'
 bcrypt = Bcrypt(app)
