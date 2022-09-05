@@ -50,3 +50,18 @@ class Item(db.Model):
         self.owner = None
         user.budget += self.price
         db.session.commit()
+
+
+class Test(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    name = db.Column(db.String(length=30), nullable=False, unique=True)
+
+
+class Ordinacija(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    ime = db.Column(db.String(length=100), nullable=False, unique=True)
+    telefon = db.Column(db.String(), nullable=False, unique=True)
+    email = db.Column(db.String(length=60), nullable=False, unique=True)
+    odpre = db.Column(db.Integer(), nullable=False)
+    zapre = db.Column(db.Integer(), nullable=False)
+    tip = db.Column(db.String(length=30), nullable=False, unique=True)
