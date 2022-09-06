@@ -11,7 +11,6 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(length=30), nullable=False, unique=True)
     email_address = db.Column(db.String(length=60), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
-    budget = db.Column(db.Integer(), nullable=False, default=1000)
     items = db.relationship('Item', backref='owned_user', lazy=True)
 
     @property
@@ -52,16 +51,22 @@ class Item(db.Model):
         db.session.commit()
 
 
-class Test(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
-    name = db.Column(db.String(length=30), nullable=False, unique=True)
-
-
 class Ordinacija(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
-    ime = db.Column(db.String(length=100), nullable=False, unique=True)
+    ime = db.Column(db.String(), nullable=False, unique=True)
     telefon = db.Column(db.String(), nullable=False, unique=True)
-    email = db.Column(db.String(length=60), nullable=False, unique=True)
+    email = db.Column(db.String(), nullable=False, unique=True)
     odpre = db.Column(db.Integer(), nullable=False)
     zapre = db.Column(db.Integer(), nullable=False)
-    tip = db.Column(db.String(length=30), nullable=False, unique=True)
+    tip = db.Column(db.String(), nullable=False, unique=True)
+    lastnik = db.Column(db.Integer(), db.ForeignKey('zdravnik.id'))
+
+
+class Zdravnik(db.Model):
+    id = db.Column(db.Integer(), primary_key=True)
+    ime = db.Column(db.String(), nullable=False, unique=True)
+    priimek = db.Column(db.String(), nullable=False, unique=True)
+    email = db.Column(db.String(length=60), nullable=False, unique=True)
+    password_hash = db.Column(db.String(length=60), nullable=False)
+    naziv = db.Column(db.String(), nullable=False)
+    ordinacija = db.relationship('Ordinacija', backref='glavni_zdravnik', lazy=True)
