@@ -14,8 +14,8 @@ Market page
             <thead>
             <tr>
                 <!-- Your Columns HERE -->
-                <th scope="col">ID</th>
-                <th scope="col">Name</th>
+                <th scope="col">Ime Ordinacije</th>
+                <th scope="col">Glavni zdravnik</th>
 
 
                 <th scope="col">Options</th>
@@ -24,12 +24,11 @@ Market page
             <tbody>
             <!-- Your rows inside the table HERE: -->
             {% for item in items %}
-
-
+            {% for n in item.ordinacija %}
             {% include 'includes/itemsmodals.html' %}
             <tr>
-                <td>{{ item.id }}</td>
-                <td>{{ item.name }}</td>
+                <td>{{ n.ime }}</td>
+                <td>{{item.naziv}}&nbsp{{ item.ime}}&nbsp{{ item.priimek }}</td>
 
 
                 <td>
@@ -38,7 +37,7 @@ Market page
                 </td>
             </tr>
             {% endfor %}
-
+            {% endfor %}
             </tbody>
         </table>
     </div>

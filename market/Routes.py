@@ -1,6 +1,6 @@
 from market import app
 from flask import render_template, redirect, url_for, flash, request, session
-from market.Models import Item, User
+from market.Models import Item, User, Zdravnik, Ordinacija
 from market.Forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm, DateForm
 from market import db
 from flask_login import login_user, logout_user, login_required, current_user
@@ -53,8 +53,7 @@ def market_page():
 
 
     if request.method == "GET":
-        items = Item.query
-
+        items = Zdravnik.query.join(Ordinacija).all()
         owned_items = Item.query.filter_by(owner=current_user.id)
 
         return render_template('termin.html', items=items, purchase_form=select_form, owned_items=owned_items, selling_form=selling_form, datum = datum)
