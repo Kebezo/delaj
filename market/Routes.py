@@ -1,12 +1,15 @@
 from market import app
 from flask import render_template, redirect, url_for, flash, request, session
-from market.Models import Item, User, Zdravnik, Ordinacija
+from market.Models import Item, User, Zdravnik, Ordinacija, Ponudba, Naslov, Kraj
 from market.Forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm, DateForm
 from market import db
 from flask_login import login_user, logout_user, login_required, current_user
 import folium
+from flask_table import Table, Col
 
-
+@app.before_first_request
+def create_tables():
+    db.create_all()
 @app.route('/')
 @app.route('/home')
 def home_page():
@@ -18,13 +21,15 @@ def market_page():
     select_form = PurchaseItemForm()
     selling_form = SellItemForm()
     datum = DateForm()
-
+    date = request.form.get('DateForm')
+    if datum:
+        flash("asd")
     if request.method == "POST":
         #Purchase Item Logic
         purchased_item = request.form.get('purchased_item')
         p_item_object = Item.query.filter_by(name=purchased_item).first()
 
-        date = request.form.get('datum_form')
+
 
         if p_item_object:
             session['item'] = p_item_object.name
@@ -39,7 +44,7 @@ def market_page():
         #Sell Item Logic
         if date:
             session['date'] = date
-            flash(date)
+            flash(session['date'])
         sold_item = request.form.get('sold_item')
         s_item_object = Item.query.filter_by(name=sold_item).first()
         if s_item_object:
@@ -53,11 +58,23 @@ def market_page():
 
 
     if request.method == "GET":
-        items = Zdravnik.query.join(Ordinacija).all()
+        items = (
+            db.session.query(Ordinacija, Zdravnik, Naslov)
+                .join(Zdravnik, Ordinacija.lastnik == Zdravnik.id)
+                .join(Naslov, Ordinacija.lokacija == Naslov.id)
+                .all()
+        )
         owned_items = Item.query.filter_by(owner=current_user.id)
 
-        return render_template('termin.html', items=items, purchase_form=select_form, owned_items=owned_items, selling_form=selling_form, datum = datum)
+        return render_template('termin.html', items=items, purchase_form=select_form, owned_items=owned_items, selling_form=selling_form, datum = datum, date = date )
     return redirect(url_for('market_page'))
+def create_appointment():
+    start = request.form.get('start')
+    end = request.form.get('end')
+    new_appointment = Termin(datum=datetime.strptime(start, '%Y-%m-%dT%H:%M:%S').date(), cas=datetime.strptime(end, '%Y-%m-%dT%H:%M:%S').time(), punudba=1)
+    db.session.add(new_appointment)
+    db.session.commit()
+    return "Appointment saved successfully!"
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():
     form = RegisterForm()
@@ -108,7 +125,11 @@ def map_page():
 
 @app.route('/calendar')
 def calendar_page():
-    my_var = session.get('item', None)
-    flash(my_var)
+
     #m = folium.Map(location=[45.5236, -122.6750])
     return render_template('calendar.html')
+
+@app.route('/test')
+def test_page():
+    return render_template('test.html')
+
