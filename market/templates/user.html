@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}
+User Page
+{% endblock %}
+
+{% block content %}
+<body class="text-center">
+     <div class="container">
+        <h1>{{ user.username }}</h1>
+<p>Email: {{ user.email_address }}</p>
+<!-- Display appointments -->
+<h2>Sestanki</h2>
+{% if appointments %}
+  <table>
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Čas</th>
+            <th>Pregled</th>
+            <th>Prekic pregleda</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for appointment in appointments %}
+        <tr>
+            <td>{{ appointment.Termin.datum }}</td>
+            <td>{{ appointment.Termin.cas }}</td>
+            <td>{{ appointment.Ponudba.naziv }}</td>
+            <td>
+                <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST">
+                    <input class="btn btn-outline btn-info" type="submit" value="Preklic">
+                </form>
+            </td>
+            <td><button id="reschedule-button" class="btn btn-outline btn-success" data-bs-target="#calendar-modal{{appointment.ponudba}}{{appointment.ordinacija}}">Reschedule</button>
+
+</td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+  <p>No appointments found for this user.</p>
+{% endif %}
+    </div>
+</body>
+{% endblock %}

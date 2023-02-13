@@ -54,7 +54,7 @@
 
 
 <!-- Modal -->
-<div aria-labelledby="myModalLabel" class="modal fade" id="myModal" role="dialog" tabindex="-1">
+<div aria-labelledby="myModalLabel" class="modal fade" id="myModal{{ordinacija.id}}" role="dialog" tabindex="-1">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -66,7 +66,7 @@
             <div class="modal-body">
 
                 <!-- map container -->
-                <div id="map" style="width: 470px; height: 300px;"></div>
+                <div id="map{{ponudba.id}}{{ordinacija.id}}" style="width: 470px; height: 300px;"></div>
 
             </div>
             <div class="modal-footer">
@@ -78,7 +78,7 @@
 
 
 <!-- Modal -->
-<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="calendar-modal" role="dialog" tabindex="-1">
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="calendar-modal{{ponudba.id}}{{ordinacija.id}}" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content" style="width:1000px">
       <div class="modal-header">
@@ -87,12 +87,20 @@
       <div class="modal-body">
         <div class="row">
           <div class="col-8">
-            <div id="calendar"></div>
+            <div id="koledar{{ponudba.id}}"></div>
           </div>
           <div class="col-4">
             <div id="new-container">
-              <div id="time"></div>
-
+              <div id="time{{ponudba.id}}{{ordinacija.id}}"></div>
+            <form method="POST">
+          {{ datum.hidden_tag() }}
+          <h4 class="text-center">
+          </h4>
+          <br>
+          <input id="idmogoce" name="asdsd" type="hidden" value="s">
+          <input id="datum{{ponudba.id}}{{ordinacija.id}}" name="datum" type="hidden" value="s">
+          {{ datum.submit(class="btn btn-outline-success btn-block") }}
+        </form>
             </div>
           </div>
         </div>
@@ -118,9 +126,17 @@
 
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  let calendarEl = document.getElementById('calendar');
-  let calendar = new FullCalendar.Calendar(calendarEl, {
+var loadCalendarButton = document.getElementById("koledargumb{{ponudba.id}}{{ordinacija.id}}");
+  loadCalendarButton.addEventListener("click", createCalendar);
+  function createCalendar() {
+
+  var calendar = null;
+
+  const myModal = document.querySelector("#calendar-modal{{ponudba.id}}{{ordinacija.id}}");
+  myModal.addEventListener("shown.bs.modal", () => {
+    let calendarEl = document.getElementById('koledar{{ponudba.id}}');
+
+  calendar = new FullCalendar.Calendar(calendarEl, {
     aspectRatio: 2,
     locale: 'sl',
     contentHeight: 600
@@ -128,8 +144,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   calendar.on('dateClick', function(info) {
-   var calendarEl = document.getElementById('time');
-   var calendar = new FullCalendar.Calendar(calendarEl, {
+  console.log({{ordinacija.id}});
+  var id = {{ordinacija.id}};
+   var calendarEl = document.getElementById('time{{ponudba.id}}{{ordinacija.id}}');
+   calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'sl',
      visibleRange: {
         start: '08:00',
@@ -140,30 +158,20 @@ document.addEventListener("DOMContentLoaded", function () {
     initialDate: info.dateStr,
     contentHeight:"auto",
     handleWindowResize:true,
-    events: '',
+
+
+events: getEvents(id),
     selectable: true,
     select: function(info) {
-        console.log(`time slot selected: ${info.startStr} to ${info.endStr}`);
-
-        var start = info.startStr;
-        var end = info.endStr;
-        var formData = new FormData();
-        formData.append('start', start);
-        formData.append('end', end);
-
-        fetch('/termin', {
-            method: 'POST',
-            body: formData
-        })
-        .then(function (response) {
-            return response.text();
-        })
-        .then(function (text) {
-            console.log(text);
-        });
+        var form = document.getElementById("datum{{ponudba.id}}{{ordinacija.id}}");
+        var form1 = document.getElementById("idmogoce");
+        console.log(form1);
+        form.value = (`${info.startStr}, ${info.endStr}, T${form1.value}`);
+        console.log(form.value)
     },
   });
   calendar.render();
+
   console.log('clicked on ' + info.dateStr);
   var date = info.dateStr;
   var days = document.querySelectorAll(".selectedDate");
@@ -172,32 +180,48 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   info.dayEl.classList.add("selectedDate");
 });
-
-  const myModal = document.querySelector("#calendar-modal");
-  myModal.addEventListener("shown.bs.modal", () => {
     calendar.render();
   });
+   }
 
 
+   function getEvents(id) {
+  var events = [
+    {% for termin, ponudba, ordinacija in termini %}
+        {% if termin.status!='Zavrnjen'%}
+            {
+                id: {{ordinacija.id}},
+                title: '{{termin.punudba}}',
+                start: '{{termin.datum}}T{{termin.cas}}',
+                end: '{{termin.datum}}T{{termin.koncni_cas}}'
+            },
+        {% endif %}
+    {% endfor %}
+     ];
 
-});
+  var filteredEvents = [];
+  for (var i = 0; i < events.length; i++) {
+    if (events[i].id === id) {
+      filteredEvents.push(events[i]);
+    }
+  }
 
+  return filteredEvents;
+}
 </script>
 <script>
-  var map = L.map('map').setView([{{naslov.x}}, {{naslov.y}}], 14);
+{% if naslov %}
+  var map{{ponudba.id}}{{ordinacija.id}} = L.map('map{{ponudba.id}}{{ordinacija.id}}').setView([{{naslov.x}}, {{naslov.y}}], 14);
 
-L.marker([{{naslov.x}}, {{naslov.y}}]).addTo(map);
+L.marker([{{naslov.x}}, {{naslov.y}}]).addTo(map{{ponudba.id}}{{ordinacija.id}});
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map);
+}).addTo(map{{ponudba.id}}{{ordinacija.id}});
 
 // Comment out the below code to see the difference.
-$('#myModal').on('shown.bs.modal', function() {
-  map.invalidateSize();
+$('#myModal{{ponudba.id}}{{ordinacija.id}}').on('shown.bs.modal', function() {
+  map{{ponudba.id}}{{ordinacija.id}}.invalidateSize();
 });
-
-</script>
-<script>
-
+{% endif %}
 </script>

@@ -4,7 +4,12 @@ Market page
 {% endblock %}
 
 {% block content%}
+<style>
+    .menu-container {
+  display: none;
+}
 
+</style>
 <div class="row" style="margin-top: 20px; margin-left: 20px">
     <div class="col-8">
         <h2>Specialisti</h2>
@@ -24,44 +29,104 @@ Market page
             <tbody>
             <!-- Your rows inside the table HERE: -->
             {% for ordinacija, zdravnik, naslov in items %}
-            {% include 'includes/itemsmodals.html' %}
-            <tr>
-                <td>{{ ordinacija.ime }}</td>
-                <td>{{zdravnik.naziv}}&nbsp{{ zdravnik.ime}}&nbsp{{ zdravnik.priimek }}</td>
-                <td>
-                    <button class="btn btn-outline btn-info" data-toggle="modal" data-target="#myModal">More Info</button>
-                  <button type="button" class="btn btn-outline btn-success" data-bs-toggle="modal" data-bs-target="#calendar-modal">Izberite tega specialista</button>
 
-                </td>
-            </tr>
-            {% endfor %}
+        <tr>
+            <td>{{ ordinacija.ime }}</td>
+            <td>{{zdravnik.naziv}}&nbsp{{ zdravnik.ime}}&nbsp{{ zdravnik.priimek }}</td>
+            <td>
+                <button class="btn btn-outline btn-info" data-target="#myModal{{ordinacija.id}}" data-toggle="modal">More Info</button>
+            </td>
+        </tr>
+       <tr class="menu-container" style="display: none;">
+
+                {% for ponudba in ordinacija.ponudba %}
+           <form id="idji">
+                   <td style="display: flex; flex-wrap: wrap;">
+                        <p style="display:inline"> {{ ponudba.naziv }} </p>
+<button id="koledargumb{{ponudba.id}}{{ordinacija.id}}" class="btn btn-outline btn-success" data-ordinacija-id="{{ordinacija.id}}" data-bs-target="#calendar-modal{{ponudba.id}}{{ordinacija.id}}" data-bs-toggle="modal" type="button" onclick="setFormValues([{{ponudba.id}}, {{ordinacija.id}}])">Izberite tega specialista</button>
+                    </td>
+</form> {% include 'includes/itemsmodals.html' %}
+                {% endfor %}
+        </tr>
+
+
+{% endfor %}
+
             </tbody>
         </table>
+
+        <script>
+    $(document).ready(function(){
+    $("tr").click(function(){
+        $(this).nextAll("tr.menu-container").slice(0, 3).toggle();
+    });
+});
+</script>
+
     </div>
      <div class="col-4">
-        <h2>Vaši termini</h2>
-        <p>Kliknite na termin, če si ga želite prestaviti ali preklicati</p>
-        <br>
-        <div class="row">
-           {% for owned_item in owned_items %}
-            {% include 'includes/owned_items_modal.html' %}
-             <div class="col-md-6">
-                 <div style="margin-bottom: 5px" class="card text-center bg-dark">
-                      <div class="card-body">
-                          <h5 class="card-title">{{ owned_item.name }}</h5>
-                          <button type="button" class="btn btn-outline-danger" style="margin-bottom: 5px"
-                                  data-toggle="modal" data-target="#Modal-SellingConfirm-{{ owned_item.id }}">
-                              Sell this Item
-                          </button>
-                          <p class="card-text"><strong>
-                              This item costs {{ owned_item.price }}$
-                          </strong></p>
-                      </div>
-                  </div>
-             </div>
-           {% endfor %}
-        </div>
+        <h2>Specialisti</h2>
+        <p>Kliknite na želenega specialista</p>
+
+       <body class="text-center">
+     <div class="container">
+
+<!-- Display appointments -->
+
+{% if appointments %}
+  <table>
+    <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Čas</th>
+            <th>Pregled</th>
+            <th>Status</th>
+            <th>Prekic pregleda</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for termin, ponudba, ordinacija in appointments %}
+        <tr>
+            <td>{{ termin.datum }}</td>
+            <td>{{ termin.cas }}</td>
+            <td>{{ ponudba.naziv }}</td>
+            <td>{{ termin.status }}</td>
+            <td>
+                <form action="{{ url_for('cancel_appointment', id=termin.id) }}" method="POST">
+                    <input class="btn btn-outline btn-info" type="submit" value="Preklic">
+                </form>
+            </td>
+            <td><button id="koledargumb1{{ponudba.id}}{{ordinacija.id}}" class="btn btn-outline btn-success" data-ordinacija-id="{{ordinacija.id}}" data-bs-target="#calendar-modal1{{ponudba.id}}{{ordinacija.id}}" data-bs-toggle="modal" type="button" onclick="setFormValues([{{ponudba.id}}, {{ordinacija.id}}])">Spremenite datum</button>
+
+
+</td>
+        </tr>
+{% include 'includes/owned_items_modal.html' %}
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+  <p>No appointments found for this user.</p>
+{% endif %}
+    </div>
+</body>
    </div>
 </div>
 
+
+<script>
+
+function setFormValues(element) {
+
+    var form = document.getElementById("idmogoce").value = element[0];
+    sessionStorage.setItem(element[0], element[1]);
+  console.log(element[1])
+
+}
+
+</script>
+
+
+
 {% endblock %}
+

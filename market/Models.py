@@ -14,6 +14,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(length=30), nullable=False, unique=True)
     email_address = db.Column(db.String(length=60), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
+    role = db.Column(db.String)
     items = db.relationship('Item', backref='owned_user', lazy=True)
     termin = db.relationship('Termin', backref='Termin', lazy=True)
 
@@ -73,7 +74,15 @@ class Zdravnik(db.Model):
     password_hash = db.Column(db.String(length=60), nullable=False)
     naziv = db.Column(db.String(), nullable=False)
     ordinacija = db.relationship('Ordinacija', backref='glavni_zdravnik', lazy=True)
-
+class Termin(db.Model):
+    __tablename__ = 'Termin'
+    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
+    datum = db.Column(db.String())
+    cas = db.Column(db.String())
+    koncni_cas = db.Column(db.String())
+    status = db.Column(db.String(), default="Nepotrjeno")
+    punudba = db.Column(db.Integer(), db.ForeignKey('Ponudba.id'))
+    uporabnik = db.Column(db.Integer(), db.ForeignKey('User.id'))
 class Ponudba(db.Model):
     __tablename__ = 'Ponudba'
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -82,13 +91,6 @@ class Ponudba(db.Model):
     ordinacija = db.Column(db.Integer(), db.ForeignKey('Ordinacija.id'))
     termin = db.relationship('Termin', backref='termin', lazy=True)
 
-class Termin(db.Model):
-    __tablename__ = 'Termin'
-    id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
-    datum = db.Column(db.Date())
-    cas = db.Column(db.Time())
-    punudba = db.Column(db.Integer(), db.ForeignKey('Ponudba.id'))
-    uporabnik = db.Column(db.Integer(), db.ForeignKey('User.id'))
 
 class Naslov(db.Model):
     __tablename__ = 'Naslov'

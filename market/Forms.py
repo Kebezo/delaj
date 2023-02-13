@@ -35,3 +35,7 @@ class SellItemForm(FlaskForm):
 
 class DateForm(FlaskForm):
     submit = SubmitField(label='Izberite datum')
+
+class OrdinacijaForm(FlaskForm):
+    submit = SubmitField(label='Izberite ordinacijo')
+

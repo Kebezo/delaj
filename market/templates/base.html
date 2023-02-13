@@ -13,6 +13,17 @@
         {% endblock %}
     </title>
 </head>
+<style>
+.tt-suggestion {
+  background-color: #343A40;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.tt-suggestion:hover {
+  background-color: #17A2B8;
+}
+</style>
 <body>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="#">Aplikacija</a>
@@ -30,9 +41,13 @@
         </ul>
         {% if current_user.is_authenticated %}
         <ul class="navbar-nav">
-
             <li class="nav-item">
-                <a class="nav-link">Wellcome, {{ current_user.username }}</a>
+               <div id="the-basics">
+  <input class="typeahead" type="text" placeholder="States of USA">
+</div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('user_page') }} ">Wellcome, {{ current_user.username }}</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
@@ -81,6 +96,9 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
         crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
 </body>
 <style>
       body {
@@ -92,3 +110,43 @@
 
 
 </style>
+<script>
+   var substringMatcher = function(strs) {
+  return function findMatches(q, cb) {
+    var matches, substringRegex;
+
+    // an array that will be populated with substring matches
+    matches = [];
+
+    // regex used to determine if a string contains the substring `q`
+    substrRegex = new RegExp(q, 'i');
+
+    // iterate through the pool of strings and for any string that
+    // contains the substring `q`, add it to the `matches` array
+    $.each(strs, function(i, str) {
+      if (substrRegex.test(str)) {
+        matches.push(str);
+      }
+    });
+
+    cb(matches);
+  };
+};
+
+var states = {{ordinacije}}
+
+$('#the-basics .typeahead').typeahead({
+  hint: true,
+  highlight: true,
+  minLength: 1,
+},
+{
+  name: 'states',
+  source: substringMatcher(states),
+  limit: 3
+});
+$('#the-basics .typeahead').on('typeahead:selected', function(event, suggestion) {
+  // Your function here
+  console.log("Selected suggestion: " + suggestion);
+});
+</script>
