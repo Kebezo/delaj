@@ -4,44 +4,176 @@ User Page
 {% endblock %}
 
 {% block content %}
+<style>
+
+.appointment-box {
+  padding: 10px;
+  cursor: pointer;
+  display: inline-block;
+}
+
+.appointment-box:after {
+
+  margin-left: 10px;
+}
+  .modal-dialog {
+        max-width: 400px;
+    }
+
+     .modal-content {
+        padding: 20px;
+
+    }
+
+     .modal-title {
+        margin-bottom: 20px;
+    }
+
+    .modal-content {
+    background-color: #212121;
+    color: white;
+}
+
+
+
+
+</style>
 <body class="text-center">
-     <div class="container">
-        <h1>{{ user.username }}</h1>
-<p>Email: {{ user.email_address }}</p>
-<!-- Display appointments -->
-<h2>Sestanki</h2>
-{% if appointments %}
-  <table>
-    <thead>
-        <tr>
-            <th>Datum</th>
-            <th>Čas</th>
-            <th>Pregled</th>
-            <th>Prekic pregleda</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for appointment in appointments %}
-        <tr>
-            <td>{{ appointment.Termin.datum }}</td>
-            <td>{{ appointment.Termin.cas }}</td>
-            <td>{{ appointment.Ponudba.naziv }}</td>
-            <td>
-                <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST">
-                    <input class="btn btn-outline btn-info" type="submit" value="Preklic">
-                </form>
-            </td>
-            <td><button id="reschedule-button" class="btn btn-outline btn-success" data-bs-target="#calendar-modal{{appointment.ponudba}}{{appointment.ordinacija}}">Reschedule</button>
+<div class="container">
+    <h1>{{ user.username }}</h1>
+    <div>
+        <p>Email: {{ user.email_address }}</p>
+        <!-- Display appointments -->
+        <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
+            data-target="#podatkiaModal">
+        Spremenite vaše podatke
+    </button><br><br>
+        <h2>Sestanki</h2>
+        <p class="appointment-box"><b>Kliklinte za prikaz vaših prihodnjih sestankov &#9655;</b></p>
+        {% if appointments %}
+        <table class="table table-hover table-dark table" style="display: none">
+            <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Čas</th>
+                <th>Pregled</th>
+                <th>Prekic pregleda</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for appointment in appointments %}
+            <tr>
+                <td>{{ appointment.Termin.datum }}</td>
+                <td>{{ appointment.Termin.cas }}</td>
+                <td>{{ appointment.Ponudba.naziv }}</td>
+                <td>
+                    <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST">
+                        <input class="btn btn-outline btn-info" type="submit" value="Preklic">
+                    </form>
+                </td>
 
-</td>
-        </tr>
-
-        {% endfor %}
-    </tbody>
-</table>
-{% else %}
-  <p>No appointments found for this user.</p>
-{% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No appointments found for this user.</p>
+        {% endif %}
     </div>
+
+
+    <div class="modal fade" id="podatkiaModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Spremenite želene podatke</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ url_for('update_user_data') }}">
+                        <div class="form-group">
+                            <label for="username">Uporabniško ime:</label>
+                            <input type="text" class="form-control" id="username" name="username"
+                                   value="{{ user.username }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email_address">E-mail:</label>
+                            <input type="email" class="form-control" id="email_address" name="email_address"
+                                   value="{{ user.email_address }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="kzzs">Kzzs številka:</label>
+                            <input type="number" class="form-control" id="kzzs" name="kzzs" value="{{user.kzzs}}"
+                                     required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Vpišite vaše geslo:</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Spremenite vaše podatke</button>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#passwordModal">Spremenite vaše geslo</button>
+
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="passwordModalLabel">Spremenite svoje geslo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{{ url_for('change_password') }}">
+                        <div class="form-group">
+                            <label for="current_password">Trenutno geslo:</label>
+                            <input type="password" class="form-control" id="current_password" name="current_password" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="new_password">Novo geslo:</label>
+                            <input type="password" class="form-control" id="new_password" name="new_password" minlength="6" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Potrdite novo geslo:</label>
+                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Spremeni geslo</button>
+                    </form>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zapri</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+       const appointmentBox = document.querySelector('.appointment-box');
+const appointmentsTable = document.querySelector('.table');
+appointmentBox.addEventListener('click', () => {
+  appointmentsTable.style.display = appointmentsTable.style.display === 'none' ? 'table' : 'none';
+  appointmentBox.innerHTML = appointmentsTable.style.display === 'none' ? '<b>Kliknite za prikaz vaših sestankov &#9655;</b>' : '<b>Kliknite za skrivanje sestankov &#9661;</b>';
+});
+
+
+
+
+</script>
 </body>
 {% endblock %}

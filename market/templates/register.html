@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}
-Register Page
+Registracijska stran
 {% endblock %}
 
 {% block content %}
@@ -12,7 +12,7 @@ Register Page
         <img class="mb-4" src="https://smalltotall.info/wp-content/uploads/2017/04/google-favicon-vector-400x400.png"
              alt="">
         <h1 class="h3 mb-3 font-weight-normal">
-            Please Create your Account
+            Vpišite svoje podatke
         </h1>
         <br>
         {{ form.username.label() }}
@@ -20,6 +20,9 @@ Register Page
 
         {{ form.email_address.label() }}
         {{ form.email_address(class="form-control", placeholder="Email Address") }}
+
+        {{ form.kzzs.label() }}
+        {{ form.kzzs(class="form-control", placeholder="KZZS številka") }}
 
         {{ form.password1.label() }}
         {{ form.password1(class="form-control", placeholder="Password") }}
@@ -29,8 +32,8 @@ Register Page
 
         <br>
         <div class="checkbox mb-3">
-            <h6>Already have an accout?</h6>
-            <a class="btn btn-sm btn-secondary" href="{{ url_for('login_page') }}">Login</a>
+            <h6>Že imate račun?</h6>
+            <a class="btn btn-sm btn-secondary" href="{{ url_for('login_page') }}">Prijava</a>
         </div>
         {{ form.submit(class="btn btn-lg btn-block btn-primary") }}
 

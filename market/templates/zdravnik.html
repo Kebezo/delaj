@@ -1,50 +1,229 @@
 {% extends 'base.html' %}
 {% block title %}
-User Page
+Zdravnik Page
 {% endblock %}
 
 {% block content %}
-<body class="text-center">
-     <div class="container">
-        <h1>{{ user.username }}</h1>
-<p>Email: {{ user.email_address }}</p>
-<!-- Display appointments -->
-<h2>Sestanki</h2>
-{% if appointments %}
-  <table>
-    <thead>
+<style>
+    .appointment-box {
+
+  cursor: pointer;
+  display: inline-block;
+}
+    .appointment-bix {
+
+  cursor: pointer;
+  display: inline-block;
+}
+.appointment-box:after {
+
+  margin-left: 10px;
+}
+.appointment-bix:after {
+
+  margin-left: 10px;
+}
+  .modal-dialog {
+        max-width: 400px;
+    }
+
+     .modal-content {
+        padding: 20px;
+
+    }
+
+     .modal-title {
+        margin-bottom: 20px;
+    }
+
+    .modal-content {
+    background-color: #212121;
+    color: white;
+}
+
+
+
+</style>
+<body>
+<div class="container">
+    <h1 class="text-center">{{ user.username }}</h1>
+    <p class="text-center">Email: {{ user.email_address }}</p>
+    <!-- Display appointments -->
+    <h2>Prihodnji, neportjeni termini</h2>
+    {% if appointments %}
+    <p class="appointment-box"><b>Kliknite za skrivanje terminov &#9661;</b></p>
+    <table class="table" style="color: white;">
+        <thead>
         <tr>
             <th>Datum</th>
             <th>Čas</th>
-            <th>Pregled</th>
-            <th>Prekic pregleda</th>
+            <th>Tip pregleda</th>
+            <th>KZZS</th>
+            <th>Potrdi pregled</th>
+            <th>Zavrni pregled</th>
         </tr>
-    </thead>
-    <tbody>
+        </thead>
+        <tbody>
         {% for appointment in appointments %}
+         {% if appointment.Termin.status != 'Sprejet' and appointment.Termin.status != 'Zavrnjen'%}
         <tr>
             <td>{{ appointment.Termin.datum }}</td>
             <td>{{ appointment.Termin.cas }}</td>
             <td>{{ appointment.Ponudba.naziv }}</td>
+            <td>{{ appointment.User.kzzs }}</td>
             <td>
                 <form action="{{ url_for('confirm_appointment', id=appointment.Termin.id) }}" method="POST">
                     <input class="btn btn-outline btn-info" type="submit" value="Potrdi pregled">
                 </form>
             </td>
-<td>
+            <td>
                 <form action="{{ url_for('zavrni_appointment', id=appointment.Termin.id) }}" method="POST">
                     <input class="btn btn-outline btn-info" type="submit" value="Zavrni pregled">
                 </form>
             </td>
-</td>
+            </td>
         </tr>
-
+        {% endif %}
         {% endfor %}
-    </tbody>
-</table>
-{% else %}
-  <p>No appointments found for this user.</p>
-{% endif %}
+        </tbody>
+    </table>
+    <br>
+    {% else %}
+    <p>No appointments found for this user.</p>
+    {% endif %}
+</div>
+<div class="container">
+    {% if past_appointments %}
+    <h2>Pretekli termini</h2>
+    <p class="appointment-bix"><b>Kliknite za skrivanje terminov &#9661;</b></p>
+    <table class="table tible" style="color: white;">
+        <thead>
+        <tr>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Vrsta</th>
+            <th>KZZS</th>
+            <th>Je bil pregled opravljen?</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for appointment in past_appointments %}
+        {% if appointment.Termin.status != 'Končano' and appointment.Termin.status != 'Ocenjeno'%}
+        <tr>
+            <td>{{ appointment.Termin.datum }}</td>
+            <td>{{ appointment.Termin.status }}</td>
+            <td>{{ appointment.Ponudba.naziv }}</td>
+            <td>{{ appointment.User.kzzs }}</td>
+            <td>
+                <form action="{{ url_for('finish_appointment', id=appointment.Termin.id) }}" method="POST">
+                    <input class="btn btn-outline btn-info" type="submit" value="Potrdi pregled">
+                </form>
+            </td>
+            {% endif %}
+
+
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No appointments found</p>
+    {% endif %}
+    <br>
+    <div class="text-center">
+    <button class="btn btn-outline btn-info"  type="button" class="btn btn-primary" data-toggle="modal"
+            data-target="#addPonudbaModal">
+        Dodajte novo ponudbo
+    </button>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+        Izbrišite ponudbo
+    </button>
     </div>
+<br>
+    <br>
+    <br>
+</div>
+<div class="modal fade" id="addPonudbaModal" tabindex="-1" role="dialog" aria-labelledby="addPonudbaModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addPonudbaModalLabel">Dodajte novo ponudbo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('add_ponudba', id=ordinacija_id) }}">
+                    <div class="form-group">
+                        <label for="naziv">Naziv</label>
+                        <input type="text" class="form-control" id="naziv" name="naziv" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="dolzina">Dolžina</label>
+                        <input type="number" class="form-control" id="dolzina" name="dolzina" min="0" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodajte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Delete Ponudba</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" style="color: #000000; ">
+                <p style="color: white">Izberite ponudbo, ki bi jo radi izbrisali:</p>
+                <ul class="list-group">
+                    {% for ponudba in ponudbe %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ ponudba.naziv }} ({{ ponudba.dolzina*30 }} min)
+                        <form method="POST" action="{{ url_for('delete_ponudba') }}" class="d-inline">
+                            <input type="hidden" name="ponudba_id" value="{{ ponudba.id }}">
+                            <button type="submit" class="btn btn-sm btn-danger btn-lg ml-2" onclick="return confirmDelete()">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
+<script>
+    const appointmentBox = document.querySelector('.appointment-box');
+        const appointmentsTable = document.querySelector('.table');
+        appointmentBox.addEventListener('click', () => {
+        appointmentsTable.style.display = appointmentsTable.style.display === 'none' ? 'table' : 'none';
+        appointmentBox.innerHTML = appointmentsTable.style.display === 'none' ? '<b>Kliklinte za prikaz vaših prihodnjih terminov, ki čakajo potrditev &#9655;</b>' : '<b>Kliknite za skrivanje terminov &#9661;</b>';
+    });
+     const appointmentBix = document.querySelector('.appointment-bix');
+        const appointmentsTible = document.querySelector('.tible');
+        appointmentBix.addEventListener('click', () => {
+        appointmentsTible.style.display = appointmentsTible.style.display === 'none' ? 'table' : 'none';
+        appointmentBix.innerHTML = appointmentsTible.style.display === 'none' ? '<b>Kliklinte za prikaz vaših preteklih terminov, ki čakajo potrditev &#9655;</b>' : '<b>Kliknite za skrivanje terminov &#9661;</b>';
+    });
+    function confirmDelete() {
+        return confirm("Ste prepričani, da želite izbrisati to ponudbo?");
+    }
+
+
+
+</script>
 {% endblock %}

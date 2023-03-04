@@ -15,5 +15,8 @@ migrate = Migrate(app, db)
 login_manager = LoginManager(app)
 login_manager.login_view = ('login_page')
 login_manager.login_message_category = 'info'
+account_sid = "ACa72d647b699a5003f642c32b9cd6574b"
+auth_token = "e2890d6681670d40b5193903ed885e53"
+
 
 from market import Routes

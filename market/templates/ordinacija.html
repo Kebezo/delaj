@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}
+User Page
+{% endblock %}
+
+{% block content %}
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>{{ ordinacija.Ordinacija.ime }}</title>
+  </head>
+  <body>
+  <!-- Leaflet assets -->
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+     crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+     crossorigin=""></script>
+  <div class="container">
+  <div class="row">
+    <div class="col-8">
+      <h1>{{ ordinacija.Ordinacija.ime }}</h1>
+      <p>Telefon: {{ ordinacija.Ordinacija.telefon }}</p>
+      <p>Email: {{ ordinacija.Ordinacija.email }}</p>
+      <p>Urnik: {{ ordinacija.Ordinacija.odpre }} do {{ ordinacija.Ordinacija.zapre }}</p>
+      <p>Type: {{ ordinacija.Ordinacija.tip }}</p>
+      <p>Naslov: {{ ordinacija.Naslov.ulica }} {{ ordinacija.Naslov.naslov }}, {{ ordinacija.Kraj.postna }} {{ ordinacija.Kraj.ime }}</p>
+      <p>Glavni zdravnik: {{ ordinacija.Zdravnik.ime }} {{ ordinacija.Zdravnik.priimek }}</p>
+      <p>Ocena: {{ ordinacija.Ordinacija.average_rating|round(1) }}/5</p>
+    </div>
+    <div class="col-4">
+        <br>
+      <div id="map{{ ordinacija.Ordinacija.id }}" style="width: 350px; height: 450px; border: 10px solid #333;"></div>
+    </div>
+  </div>
+
+  <div class="container">
+   {% if appointments %}
+  <h2>Vaši prihodnji termini s to ordinacijo</h2>
+  <table class="table" style="color: white;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Status</th>
+        <th>Vrsta</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appointment in appointments %}
+        <tr>
+          <td>{{ appointment.Termin.datum }}</td>
+          <td>{{ appointment.Termin.cas }}</td>
+          <td>{{ appointment.Termin.status }}</td>
+            <td>{{ appointment.Ponudba.naziv }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No appointments found</p>
+{% endif %}
+
+
+  </div>
+      <div class="container">
+   {% if past_appointments %}
+  <h2>Vaši končani termini s to ordinacijo</h2>
+  <table class="table" style="color: white;">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Status</th>
+        <th>Vrsta</th>
+        <th>Ocena</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for appointment in past_appointments %}
+    <tr>
+      <td>{{ appointment.Termin.datum }}</td>
+      <td>{{ appointment.Termin.status }}</td>
+      <td>{{ appointment.Ponudba.naziv }}</td>
+      <td>
+       {% if appointment.Termin.status == 'Končano' %}
+        <form method="post" action="{{ url_for('rate_ordinacija', ordinacija_id=ordinacija.Ordinacija.id, termin_id=appointment.Termin.id) }}">
+          <input type="hidden" name="ordinacija_id" value="{{  ordinacija.Ordinacija.id }}">
+          <select name="rating">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          <input type="submit" value="Ocenite">
+        </form>
+        {% elif appointment.Termin.status == 'Ocenjeno' %}
+            Ocenjeno
+         {% else %}
+            Not available
+        {% endif %}
+
+
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p>No appointments found</p>
+{% endif %}
+  </div>
+</div>
+
+
+
+<script>
+  var map{{ ordinacija.Ordinacija.id }} = L.map('map{{ ordinacija.Ordinacija.id }}').setView([{{ ordinacija.Naslov.x }}, {{ ordinacija.Naslov.y }}], 14);
+
+  L.marker([{{ ordinacija.Naslov.x }}, {{ ordinacija.Naslov.y }}]).addTo(map{{ ordinacija.Ordinacija.id }});
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+  }).addTo(map{{ ordinacija.Ordinacija.id }});
+
+
+</script>
+    {% endblock %}

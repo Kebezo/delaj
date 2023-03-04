@@ -9,13 +9,47 @@
     <style>
     .selectedDate
     {
-        background-color: #00FA36 !important;
+        background-color: #043a10 !important;
     }
      .modal-content {
     background-color: #212121
   }
+.fc-other-month {
+  pointer-events: none;
+  cursor: default;
+}
+.fc-toolbar { text-transform: capitalize; }
 
+.legend {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
 
+.legend div {
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.legend-item {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  margin-right: 5px;
+}
+
+.available {
+  background-color: #258839;
+}
+
+.not-available {
+  background-color: #da252d;
+}
+.selected {
+  background-color: #043a10;
+}
 
     </style>
 </head>
@@ -53,36 +87,15 @@
 <!-- Button trigger modal -->
 
 
-<!-- Modal -->
-<div aria-labelledby="myModalLabel" class="modal fade" id="myModal{{ordinacija.id}}" role="dialog" tabindex="-1">
-    <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-
-                <h4 class="modal-title" id="myModalLabel">{{ordinacija.ime}}</h4>
-                <button aria-label="Close" class="close" data-dismiss="modal" type="button"><span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-
-                <!-- map container -->
-                <div id="map{{ponudba.id}}{{ordinacija.id}}" style="width: 470px; height: 300px;"></div>
-
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-primary" data-dismiss="modal" type="button">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <!-- Modal -->
-<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="calendar-modal{{ponudba.id}}{{ordinacija.id}}" role="dialog" tabindex="-1">
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade " id="calendar-modal{{ponudba.id}}{{ordinacija.id}}" role="dialog" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content" style="width:1000px">
       <div class="modal-header">
-        <button class="btn-close" data-bs-dismiss="modal" type="button"></button>
+         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
       </div>
       <div class="modal-body">
         <div class="row">
@@ -105,14 +118,29 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <p>assd</p>
-        <button class="btn btn-primary" type="button">Create</button>
+      <div class="modal-footer justify-content-between">
+        <div class="col-6">
+          <div class="row">
+            <div class="col-4">
+              <div class="legend-item available"></div>
+              <span>Termini na voljo</span>
+            </div>
+            <div class="col-4">
+              <div class="legend-item not-available"></div>
+              <span>Vsi termini zasedeni</span>
+            </div>
+            <div class="col-4">
+              <div class="legend-item selected"></div>
+              <span>Izbrani datum</span>
+            </div>
+          </div>
+        </div>
         <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
       </div>
     </div>
   </div>
 </div>
+
 
 
 <!-- partial -->
@@ -126,63 +154,119 @@
 
 
 <script>
+
 var loadCalendarButton = document.getElementById("koledargumb{{ponudba.id}}{{ordinacija.id}}");
   loadCalendarButton.addEventListener("click", createCalendar);
   function createCalendar() {
+  var todayDate = new Date().toISOString().slice(0, 10);
 
-  var calendar = null;
+fetch("/get_free_slots?ponudba_id={{ponudba.id}}&date={{danes}}&duration={{ponudba.dolzina}}&working_hours_start={{ordinacija.odpre}}&working_hours_end={{ordinacija.zapre}}")
+  .then(response => {
+    console.log(response);
+    return response.json();
+  })
+  .then(data => {
+    availability = data;
+    var currentDate = new Date(todayDate);
+  });
+
+
+    var calendar = null;
 
   const myModal = document.querySelector("#calendar-modal{{ponudba.id}}{{ordinacija.id}}");
   myModal.addEventListener("shown.bs.modal", () => {
     let calendarEl = document.getElementById('koledar{{ponudba.id}}');
 
   calendar = new FullCalendar.Calendar(calendarEl, {
+    timeZone: 'UTC',
     aspectRatio: 2,
     locale: 'sl',
-    contentHeight: 600
+    contentHeight: 600,
+    firstDay: 1,
+
+
+  dayCellDidMount: function(info) {
+
+    var date = info.date;
+    var today = new Date();
+    today.setHours(0,0,0,0); // set the time to 00:00:00.000
+    var datestring = date.toISOString().split('T')[0];
+
+    if (date < today) {
+        info.el.style.backgroundColor = '#909090 ';
+        } else if (date.getDay() === 0 || date.getDay() === 6) {
+            info.el.style.backgroundColor = '#da252d'; // set background color to red if it's a weekend day
+        } else if (availability[datestring]) {
+            info.el.style.backgroundColor = '#258839'; // set background color to green if available
+        } else if (datestring in availability && !availability[datestring]){
+            info.el.style.backgroundColor = '#da252d'; // set background color to red if not available
+        } else {
+            info.el.style.backgroundColor = '#258839'; // set background color to green if available
+        }
+    }
 
   });
 
   calendar.on('dateClick', function(info) {
+   var selectedDate = new Date(info.date);
+      var currentDate = new Date();
+
+      if (selectedDate < currentDate) {
+        alert("Rezervacija za pretekli datum ni mogoča");
+        return;
+      }
+      if (selectedDate.getDay() === 6 || selectedDate.getDay() === 0) {
+         alert("Rezervacija za vikend ni mogoča");
+         return;
+
+}
   console.log({{ordinacija.id}});
   var id = {{ordinacija.id}};
+
    var calendarEl = document.getElementById('time{{ponudba.id}}{{ordinacija.id}}');
    calendar = new FullCalendar.Calendar(calendarEl, {
     locale: 'sl',
-     visibleRange: {
-        start: '08:00',
-        end: '17:00',
-    },
+
     initialView: 'timeGridDay',
+    slotMinTime: '{{ordinacija.odpre}}',
+    slotMaxTime: '{{ordinacija.zapre}}',
     allDaySlot: false,
     initialDate: info.dateStr,
     contentHeight:"auto",
     handleWindowResize:true,
+     headerToolbar: {
+     left: 'title',
+    center: '',
+    end: ''
+  },
 
 
 events: getEvents(id),
     selectable: true,
     select: function(info) {
-        var form = document.getElementById("datum{{ponudba.id}}{{ordinacija.id}}");
-        var form1 = document.getElementById("idmogoce");
-        console.log(form1);
-        form.value = (`${info.startStr}, ${info.endStr}, T${form1.value}`);
-        console.log(form.value)
+          var form = document.getElementById("datum{{ponudba.id}}{{ordinacija.id}}");
+          var form1 = document.getElementById("idmogoce");
+          console.log(form1);
+          form.value = (`${info.startStr}, ${info.endStr}, T${form1.value}`);
+          console.log(form.value)
     },
   });
   calendar.render();
-
+    if ("{{current_time}}" <= info.dateStr) {
   console.log('clicked on ' + info.dateStr);
   var date = info.dateStr;
   var days = document.querySelectorAll(".selectedDate");
   days.forEach(function(day) {
     day.classList.remove("selectedDate");
   });
-  info.dayEl.classList.add("selectedDate");
+    info.dayEl.classList.add("selectedDate");
+    }
 });
+
     calendar.render();
   });
    }
+
 
 
    function getEvents(id) {
@@ -191,7 +275,7 @@ events: getEvents(id),
         {% if termin.status!='Zavrnjen'%}
             {
                 id: {{ordinacija.id}},
-                title: '{{termin.punudba}}',
+                title: '{{termin.naziv}}',
                 start: '{{termin.datum}}T{{termin.cas}}',
                 end: '{{termin.datum}}T{{termin.koncni_cas}}'
             },
@@ -208,20 +292,5 @@ events: getEvents(id),
 
   return filteredEvents;
 }
-</script>
-<script>
-{% if naslov %}
-  var map{{ponudba.id}}{{ordinacija.id}} = L.map('map{{ponudba.id}}{{ordinacija.id}}').setView([{{naslov.x}}, {{naslov.y}}], 14);
 
-L.marker([{{naslov.x}}, {{naslov.y}}]).addTo(map{{ponudba.id}}{{ordinacija.id}});
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-}).addTo(map{{ponudba.id}}{{ordinacija.id}});
-
-// Comment out the below code to see the difference.
-$('#myModal{{ponudba.id}}{{ordinacija.id}}').on('shown.bs.modal', function() {
-  map{{ponudba.id}}{{ordinacija.id}}.invalidateSize();
-});
-{% endif %}
 </script>

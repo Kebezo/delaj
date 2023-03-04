@@ -3,6 +3,7 @@ from market import bcrypt
 from flask_login import UserMixin
 from sqlalchemy.orm import relationship
 from flask_migrate import Migrate
+import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -15,8 +16,10 @@ class User(db.Model, UserMixin):
     email_address = db.Column(db.String(length=60), nullable=False, unique=True)
     password_hash = db.Column(db.String(length=60), nullable=False)
     role = db.Column(db.String)
+    kzzs = db.Column(db.Integer, nullable=False)
     items = db.relationship('Item', backref='owned_user', lazy=True)
     termin = db.relationship('Termin', backref='Termin', lazy=True)
+    last_login = db.Column(db.Date, default=datetime.datetime.utcnow)
 
     @property
     def password(self):
@@ -64,6 +67,10 @@ class Ordinacija(db.Model):
     lastnik = db.Column(db.Integer(), db.ForeignKey('Zdravnik.id'))
     ponudba = db.relationship('Ponudba', backref='ponudba', lazy=True)
     lokacija = db.Column(db.Integer(), db.ForeignKey('Naslov.id'))
+    rating_sum = db.Column(db.Integer(), default=0)
+    num_ratings = db.Column(db.Integer(), default=0)
+    average_rating = db.Column(db.Float(), default=0.0)
+
 
 class Zdravnik(db.Model):
     __tablename__ = 'Zdravnik'
@@ -81,6 +88,7 @@ class Termin(db.Model):
     cas = db.Column(db.String())
     koncni_cas = db.Column(db.String())
     status = db.Column(db.String(), default="Nepotrjeno")
+    timestamp = db.Column(db.Date(), default=datetime.datetime.utcnow)
     punudba = db.Column(db.Integer(), db.ForeignKey('Ponudba.id'))
     uporabnik = db.Column(db.Integer(), db.ForeignKey('User.id'))
 class Ponudba(db.Model):
@@ -90,7 +98,6 @@ class Ponudba(db.Model):
     dolzina = db.Column(db.Integer())
     ordinacija = db.Column(db.Integer(), db.ForeignKey('Ordinacija.id'))
     termin = db.relationship('Termin', backref='termin', lazy=True)
-
 
 class Naslov(db.Model):
     __tablename__ = 'Naslov'

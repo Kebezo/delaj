@@ -3,10 +3,13 @@
 <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport">
     <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
-          integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+          integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" rel="stylesheet">
+
+
+
     <title>
         {% block title %}
 
@@ -20,14 +23,25 @@
   cursor: pointer;
 }
 
-.tt-suggestion:hover {
-  background-color: #17A2B8;
+html {
+    overflow-y:scroll;
 }
+.dropdown-menu {
+  background-color: #343a40 !important;
+  color: white;
+}
+.dropdown-menu a:hover {
+  background-color: #007bff !important;
+  color: #fff;
+}
+
+
 </style>
+
 <body>
 <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <a class="navbar-brand" href="#">Aplikacija</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+    <button class="navbar-toggler" data-target="#navbarNav" data-toggle="collapse" type="button">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -36,22 +50,28 @@
                 <a class="nav-link" href="{{ url_for('home_page') }}">Home <span class="sr-only">(current)</span></a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('market_page') }}">Specialisti</a>
+                <a class="nav-link" href="{{ url_for('izberite_ordinacija') }}">Specialisti</a>
             </li>
         </ul>
         {% if current_user.is_authenticated %}
-        <ul class="navbar-nav">
+        <ul class="navbar-nav premak">
             <li class="nav-item">
-               <div id="the-basics">
-  <input class="typeahead" type="text" placeholder="States of USA">
-</div>
+                <div id="the-basics">
+                    <input class="typeahead" placeholder="Poiščite ordinacijo" type="text">
+                </div>
+            <li class="nav-item dropdown" >
+                <div aria-expanded="false" aria-haspopup="true"
+                     class="nav-link username dropdown-toggle align-items-center" data-toggle="dropdown" href="#"
+                     id="user-dropdown" role="button">
+                    <span style="color: white">Pozdravljeni, {{ current_user.username }}</span>
+                </div>
+                <div aria-labelledby="user-dropdown"  class="dropdown-menu">
+                    <a class="dropdown-item" href="{{ url_for('user_page') }}" style="color: white">Vaše informacije</a>
+                    <a class="dropdown-item" href="{{ url_for('logout_page') }}" style="color: white">Odjava</a>
+                </div>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('user_page') }} ">Wellcome, {{ current_user.username }}</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('logout_page') }}">Logout</a>
-            </li>
+
+
         </ul>
         {% else %}
         <ul class="navbar-nav">
@@ -69,7 +89,7 @@
 {% if messages %}
 {% for category, message in messages %}
 <div class="alert alert-{{ category }}">
-    <button type="button" class="m1-2 mb-1 close" data-dismiss="alert" aria-label="Close">
+    <button aria-label="Close" class="m1-2 mb-1 close" data-dismiss="alert" type="button">
         <span aria-hidden="true">&times;</span>
     </button>
     {{ message }}
@@ -87,15 +107,15 @@
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src='https://kit.fontawesome.com/a076d05399.js'></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+<script crossorigin="anonymous"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
-        crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script crossorigin="anonymous"
         integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
-        crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
-        crossorigin="anonymous"></script>
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
@@ -104,10 +124,8 @@
       body {
       background-color: #212121;
       color: white
+
       }
-
-
-
 
 </style>
 <script>
@@ -133,7 +151,7 @@
   };
 };
 
-var states = {{ordinacije}}
+var states = {{ base_variable | safe  }}
 
 $('#the-basics .typeahead').typeahead({
   hint: true,
@@ -146,7 +164,9 @@ $('#the-basics .typeahead').typeahead({
   limit: 3
 });
 $('#the-basics .typeahead').on('typeahead:selected', function(event, suggestion) {
-  // Your function here
+    window.location.href = '/ordinacija/' + suggestion;
   console.log("Selected suggestion: " + suggestion);
 });
+
+
 </script>
