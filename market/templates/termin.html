@@ -1,78 +1,117 @@
 {% extends 'base.html' %}
 {% block title %}
-Market page
+Ordinacije
 {% endblock %}
 <head>
+
     {% block content%}
     <style>
 
-.menu-container {
-  display: none;
-}
+
+
 .container {
   max-width: 1200px;
   margin: 0 auto; /* centers the container horizontally */
 }
-#opcije a {
-  border: none;
-  display: inline-block;
-  padding: 10px 15px;
-  background-color: #f2f2f2;
-  cursor: pointer;
+
+table th, table td {
+  text-align: center;
+  white-space: nowrap;
+  font-size: 20px;
+
+
+}
+table {
+  width: 100%;
+  table-layout: fixed;
 }
 
-#opcije a.active {
-  background-color: #ddd;
-}
 
-#iskalnik div:not(:first-child) {
-  display: none;
-}
+.name {
+  font-weight: bold;
 
-#iskalnik div.active {
-  display: block;
+  color: #5ba8a0;
 }
-#shearch {
-  background-color: #2c242c;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  color: white
-}
+  #odpri {
+    cursor: pointer;
+  }
 
-#opcije {
+
+ #opcije {
   display: flex;
-
-  margin-bottom: 10px;
+  justify-content: flex-start;
+  width: 400px;
 }
 
 #opcije a {
-  background-color: #fff;
-  color: #000;
+  background-color: #17a2b8;
+  font-size: 20px;
+  color: #fff;
   padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
   text-decoration: none;
 }
 
 #opcije a.active {
-  background-color: #17a2b8;
-  color: #fff;
+  background-color: #f0f0f0;
+  font-size: 20px;
+  color: #000;
 }
 
 #iskalnik {
-  padding: 10px;
+  background-color: #f0f0f0;
+  padding: 40px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 1000px;
+
+}
+#shearch{
+  margin: auto; /* centers the container vertically */
+
+}
+#iskalnik p {
+  font-size: 24px;
+  color: black;
+  margin-bottom: 10px;
+  text-align: center;
+}
+#iskalnik select,
+#iskalnik input {
+  font-size: 20px;
+  font-weight: 500;
+  padding: 15px;
+  margin-right: 50px;
+  flex: 1;
 }
 
-.tt-suggestion {
-  background-color: #343A40;
-  padding: 10px;
+#iskalnik select option {
+  font-size: 25x;
+}
+#iskalnik button {
+  font-size: 16px;
+  font-weight: 500;
+  padding: 20px 40px;
+  background-color: #17a2b8;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
+  flex-shrink: 0;
 }
-
-
-
+#iskalnik p {
+  color: black;
+  margin-bottom: 10px;
+}
+.col-lg-8.col-md-10 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+table td {
+  height: auto;
+}
 
 
 
@@ -80,103 +119,146 @@ Market page
 
     </style>
 
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
 
 </head>
-<body>
-<div style="margin-top: 20px; margin-left: 20px">
-    <div class="col-8">
-        <h2>Specialisti</h2><br><br>
-        <div id="shearch">
-            <div id="opcije">
-                <a class="active" data-tab="tab-1" href="#">Poiščite tip ordinacije</a>
-                <a class="" data-tab="tab-2" href="#">Poiščite po imenu</a>
-            </div>
-            <div id="iskalnik">
-                <div id="tab-1" class="find-doctor active">
-                    <form id="doctorsearch_tall" class="search-submit clearfix" action="#" method="get">
-                        <select data-settings="{&quot;cutOff&quot;:6}" class="dropdown" name="specialty" id="specialty"
-                                size="1" tabindex="1">
-                            <option value="0">Izberite specialista...</option>
-                            <optgroup label="Popularne specializacije">
-                                {% for type in types %}
-                                <option value="{{ type[0] }}">{{ type[0] }}</option>
-                                {% endfor %}
-                            </optgroup>
-                        </select>
-                        <input class="typeahead" placeholder="Poiščite mesto" type="text" style="margin-top: -4px"
-                               name="city">
-                        <button id="search-button">Search</button>
+<body><br>
+<div class="container">
+    {% if specialty %}
+    <h4 style="text-align: center; color:#5ba8a0">Prikazane so ordinacije, ki se specializirajo v panogi {{ specialty }}
+    </h4>
+    {% endif %}
 
-                    </form>
+    <div class="row col-md-10 mx-auto d-flex justify-content-center">
+        <div class="">
+            <br> <br>
+            <div id="shearch">
+                <div id="opcije">
+                    <a class="active" data-tab="tab-1" href="#">Poiščite tip ordinacije</a>
+                    <a class="" data-tab="tab-2" href="#">Poiščite po imenu</a>
                 </div>
-                <div id="tab-2" class="by-name">
+                <div id="iskalnik">
+                    <div class="find-doctor active" id="tab-1">
+                        <p style="color: black">Izberite tip specialista in mesto (neobvezno):</p><br>
+                        <form action="#" class="search-submit clearfix" id="doctorsearch_tall" method="get">
+                            <select class="dropdown" data-settings="{&quot;cutOff&quot;:6}" id="specialty"
+                                    name="specialty" size="1" tabindex="1">
+                                <option value="0">Izberite specialista...</option>
 
-                    <div class="by-name-input-wrap">
-                        <input type="text" name="first_name" id="first_name" placeholder="Ordinacija" class="typeahead"
-                               style="margin-top: -3px">
+                                {% for type in types %}
+                                {% if type[0] == specialty %}
+                                <option selected value="{{ type[0] }}">{{ type[0] }}</option>
+                                {% else %}
+                                <option value="{{ type[0] }}">{{ type[0] }}</option>
+                                {% endif %}
+                                {% endfor %}
+                            </select>
+
+
+                            <input class="typeahead" name="city" placeholder="Poiščite mesto" style="margin-top: -20px"
+                                   type="text" value="{% if city != 'V' %}{{ city }}{% endif %}">
+                            <button id="search-button">Poiščite</button>
+
+                        </form>
+                    </div>
+                    <div class="by-name" id="tab-2">
+                        <p style="color: black">Poiščite ordinacijo po imenu:</p><br>
+                        <div class="by-name-input-wrap">
+                            <input class="typeahead" id="first_name" name="first_name" placeholder="Ordinacija"
+                                   type="text">
+
+                        </div>
 
                     </div>
-
                 </div>
             </div>
-        </div>
-        <p>Klikline na ordinacijo za več opcij</p>
-        <br>
-        <table class="table table-hover table-dark">
-            <thead>
-            <tr>
-                <!-- Your Columns HERE -->
-                <th scope="col">Ime Ordinacije</th>
-                <th scope="col">Glavni zdravnik</th>
+
+            <br>
+
+            <span style="font-size: 20px">Prikazane so {{ ordinacija_count }} ambulante in {{ num_ponudba }} različnih ponudb {%
+    if city != 'V' %}
+    v mestu, {{ city }}
+    {% endif %}</h4></span>
+
+            <div class="row justify-content-center mt-4">
+             <div class="col-md-10">
+            <div class="row justify-content-center">
+                <!-- Your rows inside the table HERE: -->
+                {% for ordinacija, zdravnik, naslov, kraj, TipOrdinacije in items %}
+
+                <table class="table table-hover table-dark">
+                    <thead>
+                    <tr>
+                        <th class="name" scope="col">
+                            <img alt="{{ specialty }}" src="{{ link }}" style="margin-right: 20px">
+                            {{ ordinacija.ime }}
+                        </th>
+                        <th>
+                            <button class="btn btn-outline btn-info"
+                                    onclick="window.location.href='{{ url_for('show_ordinacija', ordinacija=ordinacija.ime) }}'"
+                                    style="font-size: 20px; margin-top: -70px"
+                                    style="width: 155px">Več informacij
+                            </button>
+                        </th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr id="odpri">
+                        <td>{{naslov.ulica}} {{naslov.naslov}}, {{kraj.postna}} {{kraj.ime}}</td>
+
+                        <td>
+
+                            kliknite za prikaz {{ ordinacija.ponudba|length }}h ponudb:
+                        </td>
+                    </tr>
+                    {% for ponudba in ordinacija.ponudba %}
+
+                    <tr class="menu-container table-hover" style="display: none; background-color: #2c242c;">
+                        <form id="idji">
+                            <td>
+                                <p style="font-size: 20px;  margin-top: 20px">{{ ponudba.naziv }}{% for zdravnik in
+                                    pomocniki_zdravniki %}
+                                    {% if zdravnik.id == ponudba.zdravnik %}
+                                    - {{ zdravnik.naziv }} {{ zdravnik.ime }} {{ zdravnik.priimek }}
+                                    {% endif %}
+                                    {% endfor %}</p>
+
+                            </td>
+
+                            <td>
+
+                                <button class="btn btn-outline btn-success btn-sm"
+                                        data-bs-target="#calendar-modal{{ponudba.id}}{{ordinacija.id}}"
+                                        data-bs-toggle="modal"
+                                        data-ordinacija-id="{{ordinacija.id}}"
+                                        id="koledargumb{{ponudba.id}}{{ordinacija.id}}"
+                                        onclick="setFormValues([{{ponudba.id}}, {{ordinacija.id}}])"
+                                        style="font-size: 20px; margin-top: 17px"
+                                        type="button">Izberite ta pregled
+
+                                </button>
+
+                            </td>
+
+                        </form>
+                        {% include 'includes/itemsmodals.html' %}
+                    </tr>
+
+                    {% endfor %}
 
 
-                <th scope="col">Options</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Your rows inside the table HERE: -->
-            {% for ordinacija, zdravnik, naslov, kraj in items %}
+                    </tbody>
+                </table>
+                {% endfor %}
 
-            <tr id="odpri">
-                <td>{{ ordinacija.ime }}</td>
-                <td>{{zdravnik.naziv}}&nbsp{{ zdravnik.ime}}&nbsp{{ zdravnik.priimek }}</td>
-                <td>
-                    <button class="btn btn-outline btn-info"
-                            onclick="window.location.href='{{ url_for('show_ordinacija', ordinacija=ordinacija.ime) }}'"
-                            style="width: 155px">Več informacij
-                    </button>
-
-                </td>
-            </tr>
-            {% for ponudba in ordinacija.ponudba %}
-            <tr class="menu-container table-hover" style="display: none; background-color: #2c242c;">
-                <form id="idji">
-                    <td>
-                        <p>{{ ponudba.naziv }}</p>
-                    </td>
-                    <td></td>
-                    <td>
-                        <button id="koledargumb{{ponudba.id}}{{ordinacija.id}}" class="btn btn-outline btn-success"
-                                data-ordinacija-id="{{ordinacija.id}}"
-                                data-bs-target="#calendar-modal{{ponudba.id}}{{ordinacija.id}}" data-bs-toggle="modal"
-                                type="button" onclick="setFormValues([{{ponudba.id}}, {{ordinacija.id}}])">Izberite ta
-                            pregled
-                        </button>
-                    </td>
-                </form>
-            </tr>
-            {% include 'includes/itemsmodals.html' %}
-            {% endfor %}
-
-
-            {% endfor %}
-
-            </tbody>
-        </table>
+            </div></div>
+             <div class="col-md-2" style="margin-top: 40px;">
+            <!-- Sidebar with the description -->
+                                        <h5 class="card-title">Kaj je {{ specialty }}?</h5>
+                    <br>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed maximus sapien eu purus sagittis posuere. Integer mollis elit eget tellus hendrerit tristique. Sed eget libero sit amet n</p></div>
+            </div></div>
     </div>
 </div>
 </body>
@@ -188,6 +270,8 @@ $(document).ready(function(){
     $(this).nextUntil("tr#odpri", "tr.menu-container").toggle();
   });
 });
+
+
 
 </script>
 
@@ -201,7 +285,7 @@ function setFormValues(element) {
   console.log(element[1])
 
 }
-$(document).ready(function() {
+ $(document).ready(function() {
   // Hide all tabs except the first one
   $("#tab-2").hide();
 
@@ -232,8 +316,6 @@ $(document).ready(function() {
     // Show the basics div when the first tab is clicked
   });
 });
-
-
 
 
 
@@ -273,14 +355,11 @@ $('#tab-1 .typeahead').typeahead({
 
 
 
-
-
-
-
-
-</script>
-<script>
-    var substringMatcher1 = function(strs) {
+$("#opcije a").click(function(event) {
+  event.preventDefault();
+  // rest of your code
+});
+ var substringMatcher1 = function(strs) {
   return function findMatches(q, cb) {
     var matches, substringRegex;
 
@@ -322,14 +401,31 @@ $(function() {
   $('#search-button').click(function() {
     var specialty = $('#specialty').val();
     var city = $('input[name="city"]').val();
-    var url = '/izberite_ordinacija/' + encodeURIComponent(specialty) + '/' + encodeURIComponent(city);
+
+    if (specialty == 0) {
+      alert('Izberite tip specialista');
+      return false;
+    }
+
+    if (!city) {
+      city = 'V'
+    }
+
+    var url = '/termin/' + encodeURIComponent(specialty) + '/' + encodeURIComponent(city);
     window.location.href = url;
     return false;
   });
 });
 
 
+
+
+
+
+
+
 </script>
+
 
 {% endblock %}
 

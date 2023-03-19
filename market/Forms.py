@@ -13,7 +13,7 @@ class RegisterForm(FlaskForm):
 
     def validate_kzzs(self, kzzs_to_check):
         kzzs = User.query.filter_by(kzzs=kzzs_to_check.data).first()
-        if kzzs_to_check:
+        if kzzs:
             raise ValidationError('Kzzs already exists')
     def validate_email_address(self, email_address_to_check):
         email_address = User.query.filter_by(email_address=email_address_to_check.data).first()

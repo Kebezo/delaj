@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CodePen - A Pen by ADyson82</title>
+
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.css' rel='stylesheet'>
 
@@ -51,6 +51,20 @@
   background-color: #043a10;
 }
 
+body.modal-open {
+  position: fixed;
+  width: 100%;
+}
+.modal-dialog {
+  width: 90%;
+
+}
+.modal-dialog {
+  max-width: 800px;
+}
+
+
+
     </style>
 </head>
 <body>
@@ -87,60 +101,59 @@
 <!-- Button trigger modal -->
 
 
-
 <!-- Modal -->
-<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade " id="calendar-modal{{ponudba.id}}{{ordinacija.id}}" role="dialog" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content" style="width:1000px">
-      <div class="modal-header">
-         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade "
+     id="calendar-modal{{ponudba.id}}{{ordinacija.id}}" role="dialog" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content" style="width:900px;">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-      </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col-8">
-            <div id="koledar{{ponudba.id}}"></div>
-          </div>
-          <div class="col-4">
-            <div id="new-container">
-              <div id="time{{ponudba.id}}{{ordinacija.id}}"></div>
-            <form method="POST">
-          {{ datum.hidden_tag() }}
-          <h4 class="text-center">
-          </h4>
-          <br>
-          <input id="idmogoce" name="asdsd" type="hidden" value="s">
-          <input id="datum{{ponudba.id}}{{ordinacija.id}}" name="datum" type="hidden" value="s">
-          {{ datum.submit(class="btn btn-outline-success btn-block") }}
-        </form>
             </div>
-          </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-8">
+                        <div id="koledar{{ponudba.id}}"></div>
+                    </div>
+                    <div class="col-4">
+                        <div id="new-container">
+                            <div id="time{{ponudba.id}}{{ordinacija.id}}"></div>
+                            <form method="POST">
+                                {{ datum.hidden_tag() }}
+                                <h4 class="text-center">
+                                </h4>
+                                <br>
+                                <input id="idmogoce" name="asdsd" type="hidden" value="s">
+                                <input id="datum{{ponudba.id}}{{ordinacija.id}}" name="datum" type="hidden" value="s">
+                                {{ datum.submit(class="btn btn-outline-success btn-block") }}
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+                <div class="col-6">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="legend-item available"></div>
+                            <span>Termini na voljo</span>
+                        </div>
+                        <div class="col-4">
+                            <div class="legend-item not-available"></div>
+                            <span>Vsi termini zasedeni</span>
+                        </div>
+                        <div class="col-4">
+                            <div class="legend-item selected"></div>
+                            <span>Izbrani datum</span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer justify-content-between">
-        <div class="col-6">
-          <div class="row">
-            <div class="col-4">
-              <div class="legend-item available"></div>
-              <span>Termini na voljo</span>
-            </div>
-            <div class="col-4">
-              <div class="legend-item not-available"></div>
-              <span>Vsi termini zasedeni</span>
-            </div>
-            <div class="col-4">
-              <div class="legend-item selected"></div>
-              <span>Izbrani datum</span>
-            </div>
-          </div>
-        </div>
-        <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
-      </div>
     </div>
-  </div>
 </div>
-
 
 
 <!-- partial -->
@@ -150,17 +163,19 @@
 
 
 </body>
-</html>
+
 
 
 <script>
 
 var loadCalendarButton = document.getElementById("koledargumb{{ponudba.id}}{{ordinacija.id}}");
   loadCalendarButton.addEventListener("click", createCalendar);
+
   function createCalendar() {
+
   var todayDate = new Date().toISOString().slice(0, 10);
 
-fetch("/get_free_slots?ponudba_id={{ponudba.id}}&date={{danes}}&duration={{ponudba.dolzina}}&working_hours_start={{ordinacija.odpre}}&working_hours_end={{ordinacija.zapre}}")
+fetch("/get_free_slots?ponudba_id={{ponudba.id}}&ordinacija_id={{ordinacija.id}}&date={{danes}}&duration={{ponudba.dolzina}}&working_hours_start={{ordinacija.odpre}}&working_hours_end={{ordinacija.zapre}}")
   .then(response => {
     console.log(response);
     return response.json();
@@ -228,6 +243,7 @@ fetch("/get_free_slots?ponudba_id={{ponudba.id}}&date={{danes}}&duration={{ponud
     locale: 'sl',
 
     initialView: 'timeGridDay',
+    contentHeight: 1300,
     slotMinTime: '{{ordinacija.odpre}}',
     slotMaxTime: '{{ordinacija.zapre}}',
     allDaySlot: false,
@@ -293,4 +309,7 @@ events: getEvents(id),
   return filteredEvents;
 }
 
+
+
 </script>
+</html>

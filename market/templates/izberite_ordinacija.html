@@ -13,6 +13,7 @@ Izberite Ordinacijo
 
 #opcije a {
   background-color: #17a2b8;
+  font-size: 20px;
   color: #fff;
   padding: 10px;
   text-decoration: none;
@@ -20,8 +21,8 @@ Izberite Ordinacijo
 
 #opcije a.active {
   background-color: #f0f0f0;
-
-   color: #000;
+  font-size: 20px;
+  color: #000;
 }
 
 #iskalnik {
@@ -29,26 +30,33 @@ Izberite Ordinacijo
   padding: 40px;
   display: flex;
   flex-direction: row;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
+  width: 1000px;
 }
 
+#iskalnik p {
+  font-size: 24px;
+  color: black;
+  margin-bottom: 10px;
+  text-align: center;
+}
 #iskalnik select,
 #iskalnik input {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 500;
-  padding: 10px;
-  margin-right: 30px;
+  padding: 15px;
+  margin-right: 50px;
   flex: 1;
 }
+
 #iskalnik select option {
   font-size: 25x;
 }
 #iskalnik button {
   font-size: 16px;
   font-weight: 500;
-
-  padding: 10px 20px;
+  padding: 20px 40px;
   background-color: #17a2b8;
   color: #fff;
   border: none;
@@ -63,16 +71,75 @@ Izberite Ordinacijo
   width: 217px;
 }
 .container{
-  transform: scale(1.25);
+
   margin-top: 70px;
 }
 #iskalnik p {
   color: black;
   margin-bottom: 10px;
 }
+.col-lg-8.col-md-10 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.container {
+  max-width: 90%;
+}
+
+#specialty-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 30px;
+  justify-content: center;
+  width: 90%;
+  margin: 0 auto;
+
+}
+
+#specialty-grid div {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#specialty-grid img {
+  width: 100px;
+  height: 100px;
+  transition: all 0.3s ease-in-out;
+}
+
+#specialty-grid span {
+  margin-top: 10px;
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+#specialty-grid div:hover img {
+  transform: scale(1.1);
+  border: 2px solid #17a2b8;
+  background-color: #17a2b8;
+  cursor: pointer;
+}
+
+#specialty-grid div:hover span {
+  color: #17a2b8;
+  cursor: pointer;
+}
+ span {
+        color: white;
+    }
+
+
 
     </style>
 
+    <!-- Bootstrap JavaScript -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
@@ -81,46 +148,124 @@ Izberite Ordinacijo
 </head>
 <body>
 <div class="container">
- <div class="row justify-content-center mt-4">
-        <div class="col-lg-8 col-md-10">
-        <h2>Specialisti</h2><br> <h5>Najdite specialista blizu vas</h5><br>
-        <div id="shearch">
-            <div id="opcije">
-                <a class="active" data-tab="tab-1" href="#">Poiščite tip ordinacije</a>
-                <a class="" data-tab="tab-2" href="#">Poiščite po imenu</a>
-            </div>
-            <div id="iskalnik">
-                <div id="tab-1" class="find-doctor active">
-                    <p style="color: black">Izberite tip specialista in mesto (neobvezno)</p>
-                    <form id="doctorsearch_tall" class="search-submit clearfix" action="#" method="get">
-                        <select data-settings="{&quot;cutOff&quot;:6}" class="dropdown" name="specialty" id="specialty"
-                                size="1" tabindex="1">
-                            <option value="0">Izberite specialista...</option>
+    <div class="row justify-content-center mt-4">
+        <div class="">
+            <br> <h5>Najdite specialista blizu vas</h5><br>
+            <div id="shearch">
+                <div id="opcije">
+                    <a class="active" data-tab="tab-1" href="#">Poiščite tip ordinacije</a>
+                    <a class="" data-tab="tab-2" href="#">Poiščite po imenu</a>
+                </div>
+                <div id="iskalnik">
+                    <div id="tab-1" class="find-doctor active">
+                        <p style="color: black">Izberite tip specialista in mesto (neobvezno):</p><br>
+                        <form id="doctorsearch_tall" class="search-submit clearfix" action="#" method="get">
+                            <select data-settings="{&quot;cutOff&quot;:6}" class="dropdown" name="specialty"
+                                    id="specialty"
+                                    size="1" tabindex="1">
+                                <option value="0">Izberite specialista...</option>
 
                                 {% for type in types %}
                                 <option value="{{ type[0] }}">{{ type[0] }}</option>
                                 {% endfor %}
 
-                        </select>
+                            </select>
 
-                        <input class="typeahead" placeholder="Poiščite mesto" type="text" style="margin-top: -10px"
-                               name="city">
-                        <button id="search-button">Poiščite</button>
+                            <input class="typeahead" placeholder="Poiščite mesto" type="text" style="margin-top: -20px"
+                                   name="city">
+                            <button id="search-button">Poiščite</button>
 
-                    </form>
-                </div>
-                <div id="tab-2" class="by-name">
-                     <p style="color: black">Poiščite ordinacijo po imenu</p>
-                    <div class="by-name-input-wrap">
-                        <input type="text" name="first_name" id="first_name" placeholder="Ordinacija" class="typeahead">
+                        </form>
+                    </div>
+                    <div id="tab-2" class="by-name">
+                        <p style="color: black">Poiščite ordinacijo po imenu:</p><br>
+                        <div class="by-name-input-wrap">
+                            <input type="text" name="first_name" id="first_name" placeholder="Ordinacija"
+                                   class="typeahead">
+
+                        </div>
 
                     </div>
-
                 </div>
             </div>
+            <br><br><br><br>
+                <div id="specialty-grid" class="row justify-content-center mt-4">
+                    <a href="/termin/Pediatrija/V">
+                        <div>
+                            <img src="https://i.ibb.co/NFrMsy5/pediatrics-100.png" alt="Specialty 1">
+                            <span>Pediatrija</span>
+                        </div>
+         </a>
+                        <a href="/termin/Ortopedija/V">
+                            <div>
+                                <img src="https://i.ibb.co/j5rcT7Z/orthopedic-surgery-100.png" alt="Specialty 1">
+                                <span>Ortopedija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Notranje bolezni/V">
+                            <div>
+                                <img src="https://i.ibb.co/LzS545K/internal-medicine-100.png" alt="Specialty 9">
+                                <span>Notranje bolezni</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Splošna kirurgija/V">
+                            <div>
+                                <img src="https://i.ibb.co/NNWPyrH/general-surgery-100.png" alt="Specialty 3">
+                                <span>Splošna kirurgija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Ginekologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/WFHCpnm/obgyn-obstetrics-gynecology-100.png" alt="Specialty 4">
+                                <span>Ginekologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Nevrologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/rv1WgKm/neurology-100.png" alt="Specialty 5">
+                                <span>Nevrologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Dermatologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/3sPXHvt/dermatology-100.png" alt="Specialty 6">
+                                <span>Dermatologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Alergologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/fHzJzFz/allergy-immunology-100.png" alt="Specialty 7">
+                                <span>Alergologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Kardiologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/64YZcrp/cardiology-100.png" alt="Specialty 8">
+                                <span>Kardiologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Otorinolaringologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/ctKMsKW/ent-otolaryngology-100.png" alt="Specialty 9">
+                                <span>Otorinolaringologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Hematologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/3rN0T7j/hematology-oncology-100.png" alt="Specialty 9">
+                                <span>Hematologija</span>
+                            </div>
+                        </a>
+                        <a href="/termin/Gastroenterologija/V">
+                            <div>
+                                <img src="https://i.ibb.co/DfzTz79/gastroenterology-100.png" alt="Specialty 9">
+                                <span>Gastroenterologija</span>
+                            </div>
+                        </a>
+                </div>
+
+            </div>
         </div>
-    </div>
-</div>
 </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
@@ -195,11 +340,19 @@ $('#tab-1 .typeahead').typeahead({
   limit: 1
 });
 
+
+
+
+
+
 </script>
 
 
 <script>
-
+$("#opcije a").click(function(event) {
+  event.preventDefault();
+  // rest of your code
+});
  var substringMatcher1 = function(strs) {
   return function findMatches(q, cb) {
     var matches, substringRegex;
@@ -257,6 +410,11 @@ $(function() {
     return false;
   });
 });
+
+
+
+
+
 
 
 

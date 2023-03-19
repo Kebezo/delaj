@@ -1,0 +1,218 @@
+{% extends 'base.html' %}
+{% block title %}
+Admin Page
+{% endblock %}
+
+{% block content %}
+<style>
+
+  .modal-dialog {
+        max-width: 400px;
+    }
+
+     .modal-content {
+        padding: 20px;
+
+    }
+
+     .modal-title {
+        margin-bottom: 20px;
+    }
+
+    .modal-content {
+    background-color: #212121;
+    color: white;
+    margin-top: 100px;
+    width: 1000px;
+    margin-left: -200px;
+}
+body{
+ font-size: 20px;
+}
+
+
+
+</style>
+<body>
+<div class="container">
+    <h1 class="text-center">{{ user.username }}</h1>
+    <p class="text-center">Email: {{ user.email_address }}</p>
+    <p class="text-center">Na tej strani lahko dodaste nove ordinacije, nove zdravnike in dodajaste zdravnike v
+        ordinacije</p>
+    <!-- Display appointments -->
+
+    <div class="text-center">
+        <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#addOrdinacijaModal">
+            Dodajte novo ordinacijo
+        </button>
+        <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#addGlavniZdravnikModal">
+            Dodajte glavnega zdravnika
+        </button>
+    </div>
+</div>
+<br>
+<br>
+<br>
+</div>
+
+<div class="modal fade" id="addOrdinacijaModal" tabindex="-1" role="dialog" aria-labelledby="addOrdinacijaModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addOrdinacijaModalLabel">Dodajte novo ordinacijo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('add_ordinacija') }}">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="ime">Ime</label>
+                                <input type="text" class="form-control" id="ime" name="ime" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="email">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Ulica">Ulica</label>
+                                <input type="text" class="form-control" id="Ulica" name="Ulica" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="naslov">Hišna Številka</label>
+                                <input type="text" class="form-control" id="Naslov" name="Naslov" required>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="lokacija">Lokacija</label>
+                                <select class="form-control" id="lokacija" name="lokacija" required>
+                                    {% for naslov in naslovi %}
+                                    <option value="{{ naslov.id }}">{{ naslov.postna }} {{ naslov.ime }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="telefon">Telefon</label>
+                                <input type="text" class="form-control" id="telefon" name="telefon" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="odpre">Odpre</label>
+                                <select class="form-control" id="odpre" name="odpre" required>
+                                    {% for hour in range(0, 24) %}
+                                    <option value="{{ hour }}">{{ hour }}:00</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="zapre">Zapre</label>
+                                <select class="form-control" id="zapre" name="zapre" required>
+                                    {% for hour in range(0, 24) %}
+                                    <option value="{{ hour }}">{{ hour }}:00</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="lastnik">Lastnik</label>
+                                <select class="form-control" id="lastnik" name="lastnik" required>
+                                    {% for zdravnik in zdravniki %}
+                                    <option value="{{ zdravnik.id }}">{{ zdravnik.ime }} {{ zdravnik.priimek }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="tip">Tip ordinacije</label>
+                                <select class="form-control" id="tip" name="tip" required>
+                                    {% for tip in types %}
+                                    <option value="{{ tip.id }}">{{ tip.type_name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodajte</button>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addGlavniZdravnikModal" tabindex="-1" role="dialog"
+     aria-labelledby="addGlavniZdravnikModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addGlavniZdravnikModalLabel">Dodajte glavnega zdravnika</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('add_glavni_zdravnik') }}">
+                    <div class="form-group">
+                        <label for="ime">Ime</label>
+                        <input type="text" class="form-control" id="ime" name="ime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="priimek">Priimek</label>
+                        <input type="text" class="form-control" id="priimek" name="priimek" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefon">Telefon</label>
+                        <input type="text" class="form-control" id="telefon" name="telefon" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="naziv">Naziv</label>
+                        <input type="text" class="form-control" id="naziv" name="naziv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodajte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+<script>
+
+
+</script>
+{% endblock %}

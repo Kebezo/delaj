@@ -24,7 +24,8 @@ Zdravnik Page
   margin-left: 10px;
 }
   .modal-dialog {
-        max-width: 400px;
+        max-width: 600px;
+        max-height: 800px;
     }
 
      .modal-content {
@@ -41,13 +42,40 @@ Zdravnik Page
     color: white;
 }
 
+.container{
+    font-size: 20px;
+}
+td, th {
+  text-align: center;
+}
+  td, th {
+      text-align: center;
+      padding-right: 50px; /* add padding to the right side of table cells */
+    }
+    .edit-form {
+      width: 80%; /* adjust as needed */
+      display: inline-block;
+      float: left; /* make the edit form float to the left */
+    }
+
+
 
 
 </style>
+
 <body>
 <div class="container">
     <h1 class="text-center">{{ user.username }}</h1>
     <p class="text-center">Email: {{ user.email_address }}</p>
+    <p class="text-center">Ime vaše ambulante: {{ ordinacija_ime }}</p>
+<p class="text-center">Vaše ponudbe s katerimi lahko opravljate:
+{% for index, ponudba in ponudbe|with_index %}
+    {{ ponudba.naziv }}
+    {% if not loop.last %},{% endif %}
+{% endfor %}
+</p>
+
+
     <!-- Display appointments -->
     <h2>Prihodnji, neportjeni termini</h2>
     {% if appointments %}
@@ -65,9 +93,9 @@ Zdravnik Page
         </thead>
         <tbody>
         {% for appointment in appointments %}
-         {% if appointment.Termin.status != 'Sprejet' and appointment.Termin.status != 'Zavrnjen'%}
+        {% if appointment.Termin.status != 'Sprejet' and appointment.Termin.status != 'Zavrnjen'%}
         <tr>
-            <td>{{ appointment.Termin.datum }}</td>
+            <td>{{ appointment.Termin.datum | datetimeformat}}</td>
             <td>{{ appointment.Termin.cas }}</td>
             <td>{{ appointment.Ponudba.naziv }}</td>
             <td>{{ appointment.User.kzzs }}</td>
@@ -91,8 +119,7 @@ Zdravnik Page
     {% else %}
     <p>No appointments found for this user.</p>
     {% endif %}
-</div>
-<div class="container">
+
     {% if past_appointments %}
     <h2>Pretekli termini</h2>
     <p class="appointment-bix"><b>Kliknite za skrivanje terminov &#9661;</b></p>
@@ -110,7 +137,7 @@ Zdravnik Page
         {% for appointment in past_appointments %}
         {% if appointment.Termin.status != 'Končano' and appointment.Termin.status != 'Ocenjeno'%}
         <tr>
-            <td>{{ appointment.Termin.datum }}</td>
+            <td>{{ appointment.Termin.datum| datetimeformat }}</td>
             <td>{{ appointment.Termin.status }}</td>
             <td>{{ appointment.Ponudba.naziv }}</td>
             <td>{{ appointment.User.kzzs }}</td>
@@ -132,21 +159,29 @@ Zdravnik Page
     {% endif %}
     <br>
     <div class="text-center">
-    <button class="btn btn-outline btn-info"  type="button" class="btn btn-primary" data-toggle="modal"
-            data-target="#addPonudbaModal">
-        Dodajte novo ponudbo
-    </button>
-    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
-        Izbrišite ponudbo
-    </button>
+        {% if user.role == 'zdravnik' %}
+        <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#addPonudbaModal">
+            Dodajte novo ponudbo
+        </button>
+        <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
+                data-target="#addGlavniZdravnikModal">
+            Dodajte zdravnika
+        </button>
+        {%endif%}
+        <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
+            Izbrišite in urejajte ponudbe
+        </button>
+
     </div>
+</div>
 <br>
-    <br>
-    <br>
+<br>
+<br>
 </div>
 <div class="modal fade" id="addPonudbaModal" tabindex="-1" role="dialog" aria-labelledby="addPonudbaModalLabel"
      aria-hidden="true">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="addPonudbaModalLabel">Dodajte novo ponudbo</h5>
@@ -157,12 +192,24 @@ Zdravnik Page
             <div class="modal-body">
                 <form method="POST" action="{{ url_for('add_ponudba', id=ordinacija_id) }}">
                     <div class="form-group">
-                        <label for="naziv">Naziv</label>
+                        <label for="naziv">Naziv:</label>
                         <input type="text" class="form-control" id="naziv" name="naziv" required>
                     </div>
                     <div class="form-group">
-                        <label for="dolzina">Dolžina</label>
+                        <label for="dolzina">Dolžina:</label>
                         <input type="number" class="form-control" id="dolzina" name="dolzina" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="opis">Opis:</label>
+                        <textarea class="form-control" id="opis" name="opis" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastnik">Nosilec</label>
+                        <select class="form-control" id="lastnik" name="lastnik" required>
+                            {% for zdravnik in pomocniki_zdravniki %}
+                            <option value="{{ zdravnik.id }}">{{ zdravnik.ime }} {{ zdravnik.priimek }}</option>
+                            {% endfor %}
+                        </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Dodajte</button>
                 </form>
@@ -183,28 +230,124 @@ Zdravnik Page
                 </button>
             </div>
             <div class="modal-body" style="color: #000000; ">
-                <p style="color: white">Izberite ponudbo, ki bi jo radi izbrisali:</p>
+                <p style="color: white">Izberite ponudbo, ki bi jo radi izbrisali ali uredili:</p>
                 <ul class="list-group">
                     {% for ponudba in ponudbe %}
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ ponudba.naziv }} ({{ ponudba.dolzina*30 }} min)
-                        <form method="POST" action="{{ url_for('delete_ponudba') }}" class="d-inline">
-                            <input type="hidden" name="ponudba_id" value="{{ ponudba.id }}">
-                            <button type="submit" class="btn btn-sm btn-danger btn-lg ml-2" onclick="return confirmDelete()">
-                                <i class="fas fa-trash-alt"></i>
+                        <div id="h-{{ponudba.id}}" class="h-{{ponudba.id}}">
+                            {{ ponudba.naziv }} ({{ ponudba.dolzina*30 }} min)
+                        </div>
+                        <div class="hide-{{ponudba.id}}" id="hide-{{ponudba.id}}" style="display: block;">
+                            <form method="POST" action="{{ url_for('delete_ponudba') }}" class="d-inline">
+                                <input type="hidden" name="ponudba_id" value="{{ ponudba.id }}">
+                                <button type="submit" class="btn btn-sm btn-danger btn-lg ml-2"
+                                        onclick="return confirmDelete()">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-primary btn-lg ml-2"
+                                    onclick="editPonudba({{ ponudba.id }})">
+                                <i class="fas fa-edit"></i>
                             </button>
-                        </form>
+                        </div>
+                        <div class="edit-form" id="edit-ponudba-{{ ponudba.id }}" style="display: none;">
+
+
+                            <form method="POST" action="{{ url_for('edit_ponudba', id=ponudba.id ) }}">
+                                <div class="form-group">
+                                    <label for="naziv-{{ ponudba.id }}">Naziv:</label>
+                                    <input type="text" class="form-control" id="naziv-{{ ponudba.id }}" name="naziv"
+                                           value="{{ ponudba.naziv }}" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="dolzina-{{ ponudba.id }}">Dolžina:</label>
+                                    <input type="number" class="form-control" id="dolzina-{{ ponudba.id }}"
+                                           name="dolzina"
+                                           value="{{ ponudba.dolzina }}" min="0" required>
+                                </div>
+
+                                {% if user.role != 'pomocnikzdravnik'%}
+                                <div class="form-group">
+
+                                    <label for="lastnik">Nosilec</label>
+                                    <select class="form-control" id="lastnik" name="lastnik" required>
+                                        <option value="">Izberite nosilca</option>
+                                        {% for zdravnik in pomocniki_zdravniki %}
+                                        {% if zdravnik.id == ponudba.zdravnik %}
+                                        <option value="{{ zdravnik.id }}" selected>{{ zdravnik.ime }} {{
+                                            zdravnik.priimek }}
+                                        </option>
+                                        {% else %}
+                                        <option value="{{ zdravnik.id }}">{{ zdravnik.ime }} {{ zdravnik.priimek }}
+                                        </option>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </select>
+
+                                </div>
+                                {%endif%}
+                                <div class="form-group">
+                                    <label for="opis-{{ ponudba.id }}">Opis:</label>
+                                    <textarea class="form-control" id="opis-{{ ponudba.id }}" name="opis" rows="4"
+                                              required>{{ ponudba.opis }}</textarea>
+                                </div>
+                                <input type="hidden" name="ponudba_id" value="{{ ponudba.id }}">
+                                <button type="submit" class="btn btn-primary">Shrani</button>
+                                <button type="button" class="btn btn-secondary"
+                                        onclick="cancelEditPonudba({{ ponudba.id }})">Prekliči
+                                </button>
+                            </form>
+                        </div>
                     </li>
                     {% endfor %}
+
                 </ul>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zaprite</button>
             </div>
         </div>
     </div>
 </div>
-
+<div class="modal fade" id="addGlavniZdravnikModal" tabindex="-1" role="dialog"
+     aria-labelledby="addGlavniZdravnikModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addGlavniZdravnikModalLabel">Dodajte novega zdravnika</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('add_zdravnik', id=ordinacija_id) }}">
+                    <div class="form-group">
+                        <label for="ime">Ime</label>
+                        <input type="text" class="form-control" id="ime" name="ime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="priimek">Priimek</label>
+                        <input type="text" class="form-control" id="priimek" name="priimek" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefon">Telefon</label>
+                        <input type="text" class="form-control" id="telefon" name="telefon" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="naziv">Naziv</label>
+                        <input type="text" class="form-control" id="naziv" name="naziv" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Dodajte</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 <script>
     const appointmentBox = document.querySelector('.appointment-box');
@@ -222,6 +365,32 @@ Zdravnik Page
     function confirmDelete() {
         return confirm("Ste prepričani, da želite izbrisati to ponudbo?");
     }
+function editPonudba(ponudbaId) {
+  const allEditForms = document.querySelectorAll('.edit-form');
+  allEditForms.forEach(form => form.style.display = 'none'); // hide all edit forms
+
+  const allhideForms = document.querySelectorAll('[class^="hide-"]');
+
+  allhideForms.forEach(form => form.style.display = 'block'); // show all hide forms
+
+  const allhForms = document.querySelectorAll('[class^="h-"]');
+
+  allhForms.forEach(form => form.style.display = 'block'); // show all hide forms
+  document.querySelector(`#edit-ponudba-${ponudbaId}`).style.display = 'block'; // show selected edit form
+  document.querySelector(`#hide-${ponudbaId}`).style.display = 'none';
+  document.querySelector(`#h-${ponudbaId}`).style.display = 'none';
+}
+
+
+    function cancelEditPonudba(ponudbaId) {
+           document.querySelector(`#edit-ponudba-${ponudbaId}`).style.display = 'none';
+           document.querySelector(`#hide-${ponudbaId}`).style.display = 'block';
+            document.querySelector(`#h-${ponudbaId}`).style.display = 'block';
+    }
+
+
+
+
 
 
 

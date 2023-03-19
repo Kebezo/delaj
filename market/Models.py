@@ -63,14 +63,22 @@ class Ordinacija(db.Model):
     email = db.Column(db.String(), nullable=False, unique=True)
     odpre = db.Column(db.Integer(), nullable=False)
     zapre = db.Column(db.Integer(), nullable=False)
-    tip = db.Column(db.String(), nullable=False, unique=True)
     lastnik = db.Column(db.Integer(), db.ForeignKey('Zdravnik.id'))
+    TipOrdinacije = db.Column(db.Integer(), db.ForeignKey('TipOrdinacije.id'))
     ponudba = db.relationship('Ponudba', backref='ponudba', lazy=True)
     lokacija = db.Column(db.Integer(), db.ForeignKey('Naslov.id'))
+    zdravniki = db.relationship('PomocnikZdravnik', backref='zdravnik_ordinacija', lazy=True)
     rating_sum = db.Column(db.Integer(), default=0)
     num_ratings = db.Column(db.Integer(), default=0)
     average_rating = db.Column(db.Float(), default=0.0)
 
+class TipOrdinacije(db.Model):
+    __tablename__ = 'TipOrdinacije'
+    id = db.Column(db.Integer(), primary_key=True)
+    picture_link = db.Column(db.String(length=200), nullable=False)
+    type_name = db.Column(db.String(length=30), nullable=False)
+    opis = db.Column(db.String)
+    ordinacija = db.relationship('Ordinacija', backref='TipOrdinacije8', lazy=True)
 
 class Zdravnik(db.Model):
     __tablename__ = 'Zdravnik'
@@ -81,6 +89,17 @@ class Zdravnik(db.Model):
     password_hash = db.Column(db.String(length=60), nullable=False)
     naziv = db.Column(db.String(), nullable=False)
     ordinacija = db.relationship('Ordinacija', backref='glavni_zdravnik', lazy=True)
+
+class PomocnikZdravnik(db.Model):
+    __tablename__ = 'PomocnikZdravnik'
+    id = db.Column(db.Integer(), primary_key=True)
+    ime = db.Column(db.String(), nullable=False, unique=True)
+    priimek = db.Column(db.String(), nullable=False, unique=True)
+    email = db.Column(db.String(length=60), nullable=False, unique=True)
+    naziv = db.Column(db.String(), nullable=False)
+    ponudba = db.relationship('Ponudba', backref='zdravnik_ponudba', lazy=True)
+    ordinacija = db.Column(db.Integer(), db.ForeignKey('Ordinacija.id'))
+
 class Termin(db.Model):
     __tablename__ = 'Termin'
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
@@ -96,7 +115,9 @@ class Ponudba(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     naziv = db.Column(db.String(), nullable=False, unique=True)
     dolzina = db.Column(db.Integer())
+    opis = db.Column(db.String())
     ordinacija = db.Column(db.Integer(), db.ForeignKey('Ordinacija.id'))
+    zdravnik = db.Column(db.Integer(), db.ForeignKey('PomocnikZdravnik.id'))
     termin = db.relationship('Termin', backref='termin', lazy=True)
 
 class Naslov(db.Model):
@@ -104,8 +125,6 @@ class Naslov(db.Model):
     id = db.Column(db.Integer(), primary_key=True, autoincrement=True)
     ulica = db.Column(db.String(), nullable=False)
     naslov = db.Column(db.Integer(), nullable=False)
-    x = db.Column(db.Float(), nullable=False)
-    y = db.Column(db.Float(), nullable=False)
     ordinacija = db.relationship('Ordinacija', backref='ordinacija', lazy=True)
     kraj = db.Column(db.Integer(), db.ForeignKey('Kraj.id'))
 

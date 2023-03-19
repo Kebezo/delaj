@@ -34,10 +34,43 @@ User Page
     color: white;
 }
 
+.container{
+    font-size: 17px;
+}
+
+
+
+td, th {
+  text-align: center;
+}
+
+ .big-modal .modal-dialog {
+    max-width: 800px;
+  }
+
+  .big-modal .modal-content {
+    padding: 20px;
+  }
+
+  .big-modal .modal-title {
+    margin-bottom: 20px;
+  }
+
+  .big-modal .modal-body {
+    font-size: 18px;
+  }
+
+
 
 
 
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+      crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+        crossorigin=""></script>
 <body class="text-center">
 <div class="container">
     <h1>{{ user.username }}</h1>
@@ -45,11 +78,12 @@ User Page
         <p>Email: {{ user.email_address }}</p>
         <!-- Display appointments -->
         <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
-            data-target="#podatkiaModal">
-        Spremenite vaše podatke
-    </button><br><br>
-        <h2>Sestanki</h2>
-        <p class="appointment-box"><b>Kliklinte za prikaz vaših prihodnjih sestankov &#9655;</b></p>
+                data-target="#podatkiaModal">
+            Spremenite vaše podatke
+        </button>
+        <br><br>
+        <h2>Termin</h2>
+        <p class="appointment-box"><b>Kliklinte za prikaz vaših prihodnjih terminov &#9655;</b></p>
         {% if appointments %}
         <table class="table table-hover table-dark table" style="display: none">
             <thead>
@@ -57,22 +91,69 @@ User Page
                 <th>Datum</th>
                 <th>Čas</th>
                 <th>Pregled</th>
+                <th>Ordinacija</th>
+                <th>Lokacija</th>
+                <th>Več informacij</th>
                 <th>Prekic pregleda</th>
             </tr>
             </thead>
             <tbody>
             {% for appointment in appointments %}
             <tr>
-                <td>{{ appointment.Termin.datum }}</td>
+                <td>{{ appointment.Termin.datum | datetimeformat }}</td>
                 <td>{{ appointment.Termin.cas }}</td>
                 <td>{{ appointment.Ponudba.naziv }}</td>
+                <td>{{ appointment.Ordinacija.ime }}</td>
+                <td>{{ appointment.Naslov.ulica }} {{appointment.Naslov.naslov}}, {{appointment.Kraj.ime}}</td>
+
+
+                <td>
+                    <button class="btn btn-outline btn-info" id="{{appointment.Termin.id}}"
+                            onclick="openModalWithMap('{{appointment.Termin.id}}', '{{appointment.Naslov.ulica}}', '{{appointment.Naslov.naslov}}', '{{appointment.Kraj.postna}}', '{{appointment.Kraj.ime}}')"
+                            type="button" class="btn btn-primary" data-toggle="modal"
+                            data-target="#modalMoreInfo{{appointment.Termin.id}}">
+                        Informacije
+                    </button>
+
+
+                </td>
                 <td>
                     <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST">
-                        <input class="btn btn-outline btn-info" type="submit" value="Preklic">
+                        <input class="btn btn-outline btn-danger" type="submit" value="Preklic">
                     </form>
                 </td>
 
             </tr>
+            <div class="modal fade big-modal" id="modalMoreInfo{{appointment.Termin.id}}" tabindex="-1" role="dialog"
+                 aria-labelledby="modalMoreInfoLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalMoreInfoLabel">Več informacij</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div>
+                                <p><b>Ime ordinacije:</b> {{appointment.Ordinacija.ime}}</p>
+                                <p><b>Ime ordinacije:</b> {{appointment.Zdravnik.ime}} {{appointment.Zdravnik.priimek}}
+                                </p>
+                                <p><b>Vrsta pregleda:</b> {{appointment.Ponudba.naziv}}</p>
+                                <p><b>Dni do pregleda:</b> {{ ((appointment.Termin.datum|to_date) - today).days }}</p>
+                                <p><b>Opis:</b> {{appointment.Ponudba.opis}}</p>
+                                <p><b>Lokacija:</b> {{appointment.Naslov.ulica}} {{appointment.Naslov.naslov}},
+                                    {{appointment.Kraj.ime}}</p>
+                                <div id="map{{ appointment.Termin.id }}"
+                                     style="width: 350px; height: 450px; border: 10px solid #333;"></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Zapri</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {% endfor %}
             </tbody>
         </table>
@@ -81,95 +162,215 @@ User Page
         {% endif %}
     </div>
 
+ <h2>Vaši končani termini, ki čakajo oceno</h2>
+    <p class="appointment-bo"><b>Kliklinte za prikaz vaših prihodnjih terminov &#9655;</b></p>
+    {% if past_appointments %}
 
-    <div class="modal fade" id="podatkiaModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">Spremenite želene podatke</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ url_for('update_user_data') }}">
-                        <div class="form-group">
-                            <label for="username">Uporabniško ime:</label>
-                            <input type="text" class="form-control" id="username" name="username"
-                                   value="{{ user.username }}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="email_address">E-mail:</label>
-                            <input type="email" class="form-control" id="email_address" name="email_address"
-                                   value="{{ user.email_address }}" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="kzzs">Kzzs številka:</label>
-                            <input type="number" class="form-control" id="kzzs" name="kzzs" value="{{user.kzzs}}"
-                                     required>
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Vpišite vaše geslo:</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
+    <table class="table table-hover table-dark table" id="tble" style="color: white; display:none;">
+        <thead>
+        <tr>
+             <th>Datum</th>
+                <th>Čas</th>
+                <th>Pregled</th>
+                <th>Ordinacija</th>
+                <th>Lokacija</th>
+            <th>Ocena</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for appointment in past_appointments %}
+        <tr>
+             <td>{{ appointment.Termin.datum | datetimeformat }}</td>
+                <td>{{ appointment.Termin.cas }}</td>
+                <td>{{ appointment.Ponudba.naziv }}</td>
+                <td>{{ appointment.Ordinacija.ime }}</td>
+                <td>{{ appointment.Naslov.ulica }} {{appointment.Naslov.naslov}}, {{appointment.Kraj.ime}}</td>
 
-                        <button type="submit" class="btn btn-primary">Spremenite vaše podatke</button>
-                    </form>
+            <td>
+                {% if appointment.Termin.status == 'Končano' %}
+                <form method="post"
+                      action="{{ url_for('rate_ordinacija', ordinacija_id=appointment.Ordinacija.id, termin_id=appointment.Termin.id) }}">
+                    <input type="hidden" name="ordinacija_id" value="{{  appointment.Ordinacija.id }}">
+                    <input type="hidden" name="from_user_page" value="True">
+                    <select name="rating">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                    <input type="submit" value="Ocenite">
+                </form>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#passwordModal">Spremenite vaše geslo</button>
 
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+
+                {% endif %}
+
+
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No appointments found</p>
+    {% endif %}
+</div>
+
+<div class="modal fade" id="podatkiaModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Spremenite želene podatke</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('update_user_data') }}">
+                    <div class="form-group">
+                        <label for="username">Uporabniško ime:</label>
+                        <input type="text" class="form-control" id="username" name="username"
+                               value="{{ user.username }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email_address">E-mail:</label>
+                        <input type="email" class="form-control" id="email_address" name="email_address"
+                               value="{{ user.email_address }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="kzzs">ZZZS številka:</label>
+                        <input type="number" class="form-control" id="kzzs" name="kzzs" value="{{user.kzzs}}"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Vpišite vaše geslo:</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Spremenite vaše podatke</button>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#passwordModal">
+                    Spremenite vaše geslo
+                </button>
+
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
+</div>
 <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-labelledby="passwordModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="passwordModalLabel">Spremenite svoje geslo</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form method="POST" action="{{ url_for('change_password') }}">
-                        <div class="form-group">
-                            <label for="current_password">Trenutno geslo:</label>
-                            <input type="password" class="form-control" id="current_password" name="current_password" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="new_password">Novo geslo:</label>
-                            <input type="password" class="form-control" id="new_password" name="new_password" minlength="6" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="confirm_password">Potrdite novo geslo:</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
-                        </div>
+     aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="passwordModalLabel">Spremenite svoje geslo</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('change_password') }}">
+                    <div class="form-group">
+                        <label for="current_password">Trenutno geslo:</label>
+                        <input type="password" class="form-control" id="current_password" name="current_password"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">Novo geslo:</label>
+                        <input type="password" class="form-control" id="new_password" name="new_password" minlength="6"
+                               required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Potrdite novo geslo:</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password"
+                               required>
+                    </div>
 
-                        <button type="submit" class="btn btn-primary">Spremeni geslo</button>
-                    </form>
+                    <button type="submit" class="btn btn-primary">Spremeni geslo</button>
+                </form>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Zapri</button>
-                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Zapri</button>
             </div>
         </div>
     </div>
+</div>
 
 <script>
-       const appointmentBox = document.querySelector('.appointment-box');
+const appointmentBox = document.querySelector('.appointment-box');
 const appointmentsTable = document.querySelector('.table');
 appointmentBox.addEventListener('click', () => {
   appointmentsTable.style.display = appointmentsTable.style.display === 'none' ? 'table' : 'none';
-  appointmentBox.innerHTML = appointmentsTable.style.display === 'none' ? '<b>Kliknite za prikaz vaših sestankov &#9655;</b>' : '<b>Kliknite za skrivanje sestankov &#9661;</b>';
+  appointmentBox.innerHTML = appointmentsTable.style.display === 'none' ? '<b>Kliknite za prikaz vaših terminov &#9655;</b>' : '<b>Kliknite za skrivanje terminov &#9661;</b>';
 });
+const appointmentBo = document.querySelector('.appointment-bo');
+const appointmentsTabl = document.querySelector('#tble');
+appointmentBo.addEventListener('click', () => {
+  appointmentsTabl.style.display = appointmentsTabl.style.display === 'none' ? 'table' : 'none';
+  appointmentBo.innerHTML = appointmentsTabl.style.display === 'none' ? '<b>Kliknite za prikaz vaših terminov &#9655;</b>' : '<b>Kliknite za skrivanje terminov &#9661;</b>';
+});
+
+
+function openModalWithMap(id, ulica, naslov, postna, kraj) {
+  // Combine the address components into a single string
+  var address = `${ulica} ${naslov}, ${postna} ${kraj}`;
+
+  // Get the modal element
+  var modal = document.getElementById("modalMoreInfo" + id);
+  console.log(address);
+
+  // Add event listener to remove map container when modal is closed
+  $(modal).on("hidden.bs.modal", function () {
+    // Remove the map container from the DOM
+    var mapContainer = document.getElementById("map" + id);
+    if (mapContainer) {
+      mapContainer.parentNode.removeChild(mapContainer);
+    }
+  });
+
+  // Remove existing map container
+  var existingMapContainer = document.getElementById("map" + id);
+  if (existingMapContainer) {
+    existingMapContainer.parentNode.removeChild(existingMapContainer);
+  }
+
+  // Create a new map container
+  var mapContainer = document.createElement('div');
+  mapContainer.setAttribute('id', 'map' + id);
+  mapContainer.style.height = '450px';
+  mapContainer.style.border = '10px solid #333';
+  modal.querySelector('.modal-body').appendChild(mapContainer);
+
+  // Call the filter to get the coordinates
+  $.get('/get_coordinates', {ulica: ulica, naslov: naslov, postna: postna, kraj: kraj}, function(coordinates) {
+    // Split the coordinates into lat and lon
+    var lat = parseFloat(coordinates.lat);
+    var lon = parseFloat(coordinates.lon);
+
+    // Create the map
+    var map = L.map('map' + id).setView([lat, lon], 14);
+    L.marker([lat, lon]).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {}).addTo(map);
+
+    // Call invalidateSize to force the map to render correctly
+    setTimeout(function() {
+      map.invalidateSize();
+    }, 100);
+  });
+}
+
+
+
+
+
+
 
 
 

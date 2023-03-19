@@ -24,7 +24,6 @@ User Page
       <p>Telefon: {{ ordinacija.Ordinacija.telefon }}</p>
       <p>Email: {{ ordinacija.Ordinacija.email }}</p>
       <p>Urnik: {{ ordinacija.Ordinacija.odpre }} do {{ ordinacija.Ordinacija.zapre }}</p>
-      <p>Type: {{ ordinacija.Ordinacija.tip }}</p>
       <p>Naslov: {{ ordinacija.Naslov.ulica }} {{ ordinacija.Naslov.naslov }}, {{ ordinacija.Kraj.postna }} {{ ordinacija.Kraj.ime }}</p>
       <p>Glavni zdravnik: {{ ordinacija.Zdravnik.ime }} {{ ordinacija.Zdravnik.priimek }}</p>
       <p>Ocena: {{ ordinacija.Ordinacija.average_rating|round(1) }}/5</p>
@@ -50,7 +49,7 @@ User Page
     <tbody>
       {% for appointment in appointments %}
         <tr>
-          <td>{{ appointment.Termin.datum }}</td>
+          <td>{{ appointment.Termin.datum | datetimeformat}}</td>
           <td>{{ appointment.Termin.cas }}</td>
           <td>{{ appointment.Termin.status }}</td>
             <td>{{ appointment.Ponudba.naziv }}</td>
@@ -79,7 +78,7 @@ User Page
     <tbody>
       {% for appointment in past_appointments %}
     <tr>
-      <td>{{ appointment.Termin.datum }}</td>
+      <td>{{ appointment.Termin.datum | datetimeformat}}</td>
       <td>{{ appointment.Termin.status }}</td>
       <td>{{ appointment.Ponudba.naziv }}</td>
       <td>
@@ -116,12 +115,12 @@ User Page
 
 
 <script>
-  var map{{ ordinacija.Ordinacija.id }} = L.map('map{{ ordinacija.Ordinacija.id }}').setView([{{ ordinacija.Naslov.x }}, {{ ordinacija.Naslov.y }}], 14);
+  var map{{ ordinacija.Ordinacija.id }} = L.map('map{{ ordinacija.Ordinacija.id }}').setView([{{ lat }}, {{ lon }}], 14);
 
-  L.marker([{{ ordinacija.Naslov.x }}, {{ ordinacija.Naslov.y }}]).addTo(map{{ ordinacija.Ordinacija.id }});
+  L.marker([{{ lat }}, {{ lon }}]).addTo(map{{ ordinacija.Ordinacija.id }});
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+
   }).addTo(map{{ ordinacija.Ordinacija.id }});
 
 
