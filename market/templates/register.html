@@ -6,30 +6,31 @@ Registracijska stran
 {% block content %}
 <body class="text-center">
 <div class="container">
-    <form method="POST" class="form-register" style="color:white">
+    <form method="POST" class="form-register" style="color:black    ">
         <!-- obramba pred napadi-->
         {{ form.hidden_tag() }}
         <br><br>
-            <img class="mb-3" src="https://i.ibb.co/NFrMsy5/pediatrics-100.png" alt="">
+            <img class="mb-3" src="https://i.ibb.co/NFrMsy5/pediatrics-100.png" alt="" style="border: 2px solid #3E92CC;
+  background-color: #3E92CC;">
 
         <h1 class="h3 mb-3 font-weight-normal">
             Vpišite svoje podatke
         </h1>
         <br>
         {{ form.username.label() }}
-        {{ form.username(class="form-control", placeholder="User Name") }}
+        {{ form.username(class="form-control", placeholder="Uporabniško ime") }}
 
         {{ form.email_address.label() }}
-        {{ form.email_address(class="form-control", placeholder="Email Address") }}
+        {{ form.email_address(class="form-control", placeholder="Email") }}
 
         {{ form.kzzs.label() }}
-        {{ form.kzzs(class="form-control", placeholder="KZZS številka") }}
+        {{ form.kzzs(class="form-control", placeholder="ZZZS številka") }}
 
         {{ form.password1.label() }}
-        {{ form.password1(class="form-control", placeholder="Password") }}
+        {{ form.password1(class="form-control", placeholder="Geslo") }}
 
         {{ form.password2.label() }}
-        {{ form.password2(class="form-control", placeholder="Confirm Password") }}
+        {{ form.password2(class="form-control", placeholder="Ponovite geslo") }}
 
         <br>
         <div class="checkbox mb-3">

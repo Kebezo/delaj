@@ -11,7 +11,9 @@ User Page
   cursor: pointer;
   display: inline-block;
 }
-
+.modal{
+    margin-top: 50px;
+}
 .appointment-box:after {
 
   margin-left: 10px;
@@ -30,8 +32,8 @@ User Page
     }
 
     .modal-content {
-    background-color: #212121;
-    color: white;
+    background-color: #D3D3D3;
+    color: black;
 }
 
 .container{
@@ -60,6 +62,14 @@ td, th {
     font-size: 18px;
   }
 
+    .rating-form {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .rating-form select {
+    margin-right: 5px;
+  }
 
 
 
@@ -77,7 +87,7 @@ td, th {
     <div>
         <p>Email: {{ user.email_address }}</p>
         <!-- Display appointments -->
-        <button class="btn btn-outline btn-info" type="button" class="btn btn-primary" data-toggle="modal"
+        <button class="btn btn-outline btn-info" type="button" data-toggle="modal"
                 data-target="#podatkiaModal">
             Spremenite vaše podatke
         </button>
@@ -85,7 +95,8 @@ td, th {
         <h2>Termin</h2>
         <p class="appointment-box"><b>Kliklinte za prikaz vaših prihodnjih terminov &#9655;</b></p>
         {% if appointments %}
-        <table class="table table-hover table-dark table" style="display: none">
+        <table class="table table-hover table"
+               style="display: none; background-color: #3E92CC; text-align: center; color: white;">
             <thead>
             <tr>
                 <th>Datum</th>
@@ -111,14 +122,15 @@ td, th {
                     <button class="btn btn-outline btn-info" id="{{appointment.Termin.id}}"
                             onclick="openModalWithMap('{{appointment.Termin.id}}', '{{appointment.Naslov.ulica}}', '{{appointment.Naslov.naslov}}', '{{appointment.Kraj.postna}}', '{{appointment.Kraj.ime}}')"
                             type="button" class="btn btn-primary" data-toggle="modal"
-                            data-target="#modalMoreInfo{{appointment.Termin.id}}">
+                            data-target="#modalMoreInfo{{appointment.Termin.id}}" style="background-color: #2EB872;">
                         Informacije
                     </button>
 
 
                 </td>
                 <td>
-                    <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST">
+                    <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST"
+                          onsubmit="return confirmCancellation();">
                         <input class="btn btn-outline btn-danger" type="submit" value="Preklic">
                     </form>
                 </td>
@@ -145,7 +157,7 @@ td, th {
                                 <p><b>Lokacija:</b> {{appointment.Naslov.ulica}} {{appointment.Naslov.naslov}},
                                     {{appointment.Kraj.ime}}</p>
                                 <div id="map{{ appointment.Termin.id }}"
-                                     style="width: 350px; height: 450px; border: 10px solid #333;"></div>
+                                     style="width: 350px; height: 450px; border: 10px solid #3E92CC;"></div>
                             </div>
                         </div>
                         <div class="modal-footer">
@@ -162,36 +174,36 @@ td, th {
         {% endif %}
     </div>
 
- <h2>Vaši končani termini, ki čakajo oceno</h2>
+    <h2>Vaši končani termini, ki čakajo oceno</h2>
     <p class="appointment-bo"><b>Kliklinte za prikaz vaših prihodnjih terminov &#9655;</b></p>
     {% if past_appointments %}
 
-    <table class="table table-hover table-dark table" id="tble" style="color: white; display:none;">
+    <table class="table table-hover table" id="tble" style="color: white; display:none; background-color: #3E92CC">
         <thead>
         <tr>
-             <th>Datum</th>
-                <th>Čas</th>
-                <th>Pregled</th>
-                <th>Ordinacija</th>
-                <th>Lokacija</th>
+            <th>Datum</th>
+            <th>Čas</th>
+            <th>Pregled</th>
+            <th>Ordinacija</th>
+            <th>Lokacija</th>
             <th>Ocena</th>
         </tr>
         </thead>
         <tbody>
         {% for appointment in past_appointments %}
         <tr>
-             <td>{{ appointment.Termin.datum | datetimeformat }}</td>
-                <td>{{ appointment.Termin.cas }}</td>
-                <td>{{ appointment.Ponudba.naziv }}</td>
-                <td>{{ appointment.Ordinacija.ime }}</td>
-                <td>{{ appointment.Naslov.ulica }} {{appointment.Naslov.naslov}}, {{appointment.Kraj.ime}}</td>
+            <td>{{ appointment.Termin.datum | datetimeformat }}</td>
+            <td>{{ appointment.Termin.cas }}</td>
+            <td>{{ appointment.Ponudba.naziv }}</td>
+            <td>{{ appointment.Ordinacija.ime }}</td>
+            <td>{{ appointment.Naslov.ulica }} {{appointment.Naslov.naslov}}, {{appointment.Kraj.ime}}</td>
 
             <td>
                 {% if appointment.Termin.status == 'Končano' %}
                 <form method="post"
-                      action="{{ url_for('rate_ordinacija', ordinacija_id=appointment.Ordinacija.id, termin_id=appointment.Termin.id) }}">
+                      action="{{ url_for('rate_ordinacija', ordinacija_id=appointment.Ordinacija.id, termin_id=appointment.Termin.id) }}" class="rating-form">
                     <input type="hidden" name="ordinacija_id" value="{{  appointment.Ordinacija.id }}">
-                    <input type="hidden" name="from_user_page" value="True">
+
                     <select name="rating">
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -199,10 +211,11 @@ td, th {
                         <option value="4">4</option>
                         <option value="5">5</option>
                     </select>
-                    <input type="submit" value="Ocenite">
+                    <input type="submit" value="Ocenite" class="btn btn-outline btn-sm"
+                           style="background-color: #2EB872; color:white;">
                 </form>
 
-
+                <input type="hidden" name="from_user_page" value="True">
 
                 {% endif %}
 
@@ -345,7 +358,6 @@ function openModalWithMap(id, ulica, naslov, postna, kraj) {
   var mapContainer = document.createElement('div');
   mapContainer.setAttribute('id', 'map' + id);
   mapContainer.style.height = '450px';
-  mapContainer.style.border = '10px solid #333';
   modal.querySelector('.modal-body').appendChild(mapContainer);
 
   // Call the filter to get the coordinates
@@ -367,6 +379,9 @@ function openModalWithMap(id, ulica, naslov, postna, kraj) {
 }
 
 
+ function confirmCancellation() {
+        return confirm("Potrdite preklic termina");
+    }
 
 
 

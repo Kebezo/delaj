@@ -135,7 +135,8 @@ def market_page(specialty, city):
         time_string = new_time.strftime("%H:%M:%S")
         appointments = db.session.query(Termin).join(Ponudba).filter(
             Ponudba.ordinacija == ponudba.ordinacija,
-            Termin.datum == d
+            Termin.datum == d,
+            Termin.status != 'Zavrnjen'
         ).order_by(Termin.cas).all()
         se_prekriva = False
         for app in appointments:
@@ -193,8 +194,10 @@ def market_page(specialty, city):
             )
         tip = TipOrdinacije.query.filter_by(type_name=specialty).first()
         link = ''
+        opis = ''
         if tip:
             link = tip.picture_link
+            opis = tip.opis
 
         ordinacija_count = len(set((item[0].id, item[0].ime) for item in items))
         num_ponudba = 0
@@ -228,7 +231,7 @@ def market_page(specialty, city):
         )
 
         danes = current_time.date()
-        return render_template('termin.html', specialty=specialty, city=city, items=items, purchase_form=select_form,
+        return render_template('termin.html', specialty=specialty,opis=opis, city=city, items=items, purchase_form=select_form,
                                owned_items=owned_items,
                                selling_form=selling_form, datum=datum, termini=termini, ordinacija=ordinacijaform,
                                user=user, appointments=appointments, current_time=current_time, danes=danes, link=link,
@@ -274,12 +277,12 @@ def register_page():
         db.session.commit()
 
         login_user(user_to_create)
-        flash(f'Account {user_to_create.username} created successfully', category='success')
+        flash(f'Račun {user_to_create.username} je bil ustvarjen uspešno', category='success')
 
         return redirect(url_for('izberite_ordinacija'))
     if form.errors != {}:  # If there are not errors from the validations
         for err_msg in form.errors.values():
-            flash(f'There was an error with creating a user: {err_msg}', category='danger')
+            flash(f'Napaka pri kreiranju uporabnika: {err_msg}', category='danger')
 
     return render_template('register.html', form=form)
 
@@ -294,7 +297,7 @@ def login_page():
                 attempted_password=form.password.data
         ):
             login_user(attempted_user)
-            flash(f'Success! You are logged in as: {attempted_user.username}', category='success')
+            flash(f'Čestitam! Logirani ste kot: {attempted_user.username}', category='success')
             if attempted_user.role == "pacient":
                 from datetime import datetime, timedelta
 
@@ -349,7 +352,7 @@ def login_page():
 @app.route('/logout')
 def logout_page():
     logout_user()
-    flash('You are loge out', category='info')
+    flash('Uspešno ste se odjavili', category='info')
     return redirect(url_for('home_page'))
 
 
@@ -451,8 +454,8 @@ def add_ordinacija():
     Ulica = request.form['Ulica']
     lokacija = request.form['lokacija']
     telefon = request.form['telefon']
-    odpre = request.form['odpre']
-    zapre = request.form['zapre']
+    odpre = request.form['odpre'] + ':00:00'
+    zapre =  request.form['zapre'] + ':00:00'
     lastnik = request.form['lastnik']
     tip = request.form['tip']
     print(tip)
@@ -488,7 +491,6 @@ def add_glavni_zdravnik():
     priimek = request.form.get('priimek')
     email = request.form.get('email')
     geslo = 'geslo'
-    telefon = request.form.get('telefon')
     naziv = request.form.get('naziv')
     new_glavni_zdravnik = Zdravnik(ime=ime, priimek=priimek, email=email, password_hash=geslo, naziv=naziv)
     db.session.add(new_glavni_zdravnik)
@@ -517,7 +519,11 @@ def cancel_appointment(id):
     db.session.delete(appointment)
     db.session.commit()
     flash("Sestanek je bil uspešno preklican", 'success')
-    return redirect(url_for("user_page"))
+    if request.form.get('ordinacija'):
+        ime = Ordinacija.query.get(request.form.get('ordinacija'))
+        return redirect(url_for("show_ordinacija", ordinacija=ime.ime))
+    else:
+        return redirect(url_for("user_page"))
 
 
 @app.route('/zdravnik')
@@ -536,6 +542,7 @@ def zdravnik_page():
                 .filter(Zdravnik.email == user.email_address)
                 .filter(Termin.datum + ' ' + Termin.cas >= current_time)
                 .order_by(Termin.datum)
+                .order_by(Termin.cas)
                 .all()
         )
         past_appointments = (
@@ -547,6 +554,7 @@ def zdravnik_page():
                 .filter(Zdravnik.email == user.email_address)
                 .filter(Termin.datum + ' ' + Termin.cas <= current_time)
                 .order_by(Termin.datum)
+                .order_by(Termin.cas)
                 .all()
         )
         ordinacija_id = Ordinacija.query.join(Zdravnik).filter(Zdravnik.email == user.email_address).first().id
@@ -572,6 +580,7 @@ def zdravnik_page():
                 .filter(Termin.datum + ' ' + Termin.cas >= current_time)
                 .filter(Ponudba.zdravnik == PomocnikZdravnik.id)
                 .order_by(Termin.datum)
+                .order_by(Termin.cas)
                 .all()
         )
         past_appointments = (
@@ -585,6 +594,7 @@ def zdravnik_page():
                 .filter(Termin.datum + ' ' + Termin.cas <= current_time)
                 .filter(Ponudba.zdravnik == PomocnikZdravnik.id)
                 .order_by(Termin.datum)
+                .order_by(Termin.cas)
                 .all()
         )
 
@@ -592,14 +602,14 @@ def zdravnik_page():
         ordinacija_id = PomocnikZdravnik.query.filter_by(email=current_user.email_address).first().ordinacija
 
     ordinacija = Ordinacija.query.get(ordinacija_id)
+    odpre = [ordinacija.odpre, ordinacija.zapre]
     ordinacija_ime = ordinacija.ime
     pomocniki_zdravniki = PomocnikZdravnik.query.filter_by(ordinacija=ordinacija_id).all()
 
-    print(ponudbe)
 
     return render_template("zdravnik.html", user=user, appointments=appointments, past_appointments=past_appointments,
                        ordinacija_id=ordinacija_id, ponudbe=ponudbe, ordinacija_ime=ordinacija_ime,
-                       pomocniki_zdravniki=pomocniki_zdravniki)
+                       pomocniki_zdravniki=pomocniki_zdravniki, odpre=odpre)
 
 
 @app.route("/confirm_appointment/<int:id>", methods=["POST"])
@@ -610,7 +620,7 @@ def confirm_appointment(id):
     date_only = now.date()
     appointment.timestamp = date_only  # set the timestamp to the current datetime
     db.session.commit()
-    flash("Sestanek je bil uspešno sprejet")
+    flash("Sestanek je bil uspešno sprejet", "success")
     return redirect(url_for("zdravnik_page"))
 
 
@@ -622,7 +632,7 @@ def zavrni_appointment(id):
     date_only = now.date()
     appointment.timestamp = date_only  # s
     db.session.commit()
-    flash("Sestanek je bil uspešno zavrnjen")
+    flash("Sestanek je bil uspešno zavrnjen", "success")
     return redirect(url_for("zdravnik_page"))
 
 
@@ -634,11 +644,12 @@ def finish_appointment(id):
     date_only = now.date()
     appointment.timestamp = date_only  # s
     db.session.commit()
-    flash("Sestanek je bil uspešno končan")
+    flash("Sestanek je bil uspešno končan", "success")
     return redirect(url_for("zdravnik_page"))
 
 
 @app.route('/ordinacija/<string:ordinacija>')
+@login_required
 def show_ordinacija(ordinacija):
     ordinacija1 = (
         db.session.query(Ordinacija, Zdravnik, Naslov, Kraj)
@@ -670,7 +681,7 @@ def show_ordinacija(ordinacija):
             .order_by(Termin.datum)
             .all()
     )
-    print(ordinacija1)
+    print(ordinacija1, "asdasdasdasdasdasdasdasdasd")
     naslov = ordinacija1.Naslov.naslov
     postna = ordinacija1.Kraj.postna
     kraj = ordinacija1.Kraj.ime
@@ -686,6 +697,7 @@ def show_ordinacija(ordinacija):
 
 
 @app.route('/izberite_ordinacija/', methods=['GET', 'POST'])
+@login_required
 def izberite_ordinacija():
     items = (
         db.session.query(Ordinacija, Zdravnik, Naslov, Kraj)
@@ -735,7 +747,7 @@ def add_ponudba(id):
         ponudba = Ponudba(naziv=naziv, dolzina=dolzina, ordinacija=id, opis=opis, zdravnik=lastnik)
         db.session.add(ponudba)
         db.session.commit()
-        flash('Ponudba added successfully.', 'success')
+        flash('Uspešno ste dodali ponudbo.', 'success')
         return redirect(url_for('zdravnik_page'))
     return render_template('zdravnik.html')
 
@@ -748,9 +760,9 @@ def delete_ponudba():
     if ponudba:
         db.session.delete(ponudba)
         db.session.commit()
-        flash('Ponudba deleted successfully.', 'success')
+        flash('Uspešno ste izbrisali ponudbo.', 'success')
     else:
-        flash('Ponudba not found.', 'error')
+        flash('Ponudba ne obstaja.', 'error')
     return redirect(url_for('zdravnik_page'))
 
 
@@ -760,6 +772,7 @@ def is_date_free(ponudba_id, ordinacija_id, date, duration, working_hours_start,
             .join(Ponudba, Termin.punudba == Ponudba.id)
             .join(Ordinacija, Ordinacija.id == Ponudba.ordinacija)
             .filter(Termin.datum == date, Ordinacija.id == ordinacija_id)
+            .filter(Termin.status!='Zavrnjen')
             .all()
     )
     if not appointments:

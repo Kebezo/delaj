@@ -12,6 +12,7 @@ Ordinacije
 .container {
   max-width: 1200px;
   margin: 0 auto; /* centers the container horizontally */
+  width:100%;
 }
 
 table th, table td {
@@ -30,7 +31,7 @@ table {
 .name {
   font-weight: bold;
 
-  color: #5ba8a0;
+  color: #2EB872;
 }
   #odpri {
     cursor: pointer;
@@ -44,27 +45,27 @@ table {
 }
 
 #opcije a {
-  background-color: #17a2b8;
+  background-color: #f0f0f0;
   font-size: 20px;
-  color: #fff;
+   color: #000;
   padding: 10px;
   text-decoration: none;
 }
 
 #opcije a.active {
-  background-color: #f0f0f0;
+  background-color: #2EB872;
   font-size: 20px;
-  color: #000;
+
+  color: #fff;
 }
 
 #iskalnik {
-  background-color: #f0f0f0;
+  background-color: #2EB872;
   padding: 40px;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 1000px;
 
 }
 #shearch{
@@ -93,8 +94,8 @@ table {
   font-size: 16px;
   font-weight: 500;
   padding: 20px 40px;
-  background-color: #17a2b8;
-  color: #fff;
+  background-color: #3E92CC;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -113,24 +114,43 @@ table td {
   height: auto;
 }
 
+    .breadcrumb {
+        padding: 0.5rem 1rem; /* Add padding */
+      }
 
+  .breadcrumb-item a {
+    color: gray; /* Change the color of the breadcrumb links */
+  }
 
+.breadcrumb a:hover {
+  color: #2EB872;
+}
 
 
     </style>
-
+<script crossorigin="anonymous"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+<script crossorigin="anonymous"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
 
 </head>
 <body><br>
 <div class="container">
+
+    <div class="row justify-content-center mt-4" >
+        <div class=""  style="width: 100%;">
     {% if specialty %}
-    <h4 style="text-align: center; color:#5ba8a0">Prikazane so ordinacije, ki se specializirajo v panogi {{ specialty }}
+    <h4 style="text-align: center; color:black">Prikazane so ordinacije, ki se specializirajo v panogi {{ specialty }}
     </h4>
     {% endif %}
 
-    <div class="row col-md-10 mx-auto d-flex justify-content-center">
-        <div class="">
             <br> <br>
             <div id="shearch">
                 <div id="opcije">
@@ -179,26 +199,41 @@ table td {
     if city != 'V' %}
     v mestu, {{ city }}
     {% endif %}</h4></span>
+     <nav aria-label="breadcrumb" style="margin-top: 40px;">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/home">Domov</a></li>
+          <li class="breadcrumb-item"><a href="/izberite_ordinacija">Poiščite specialista</a></li>
+            {%
+    if city == 'V' %}
+            <li class="breadcrumb-item active" aria-current="page"><b>{{ specialty }}</b></li>
+             {% else %}
+            <li class="breadcrumb-item"><a href="/termin/{{ specialty }}/V">{{ specialty }}</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><b>{{city}}</b></a></li>
+    {% endif %}
 
+        </ol>
+      </nav>
+            <br>
             <div class="row justify-content-center mt-4">
              <div class="col-md-10">
-            <div class="row justify-content-center">
+
                 <!-- Your rows inside the table HERE: -->
                 {% for ordinacija, zdravnik, naslov, kraj, TipOrdinacije in items %}
 
-                <table class="table table-hover table-dark">
+                <table class="table table-hover table-dark" style="background-color: #3E92CC;">
                     <thead>
                     <tr>
-                        <th class="name" scope="col">
+                        <th class="name" scope="col" style="color: white;   text-align: left;
+">
                             <img alt="{{ specialty }}" src="{{ link }}" style="margin-right: 20px">
                             {{ ordinacija.ime }}
                         </th>
                         <th>
-                            <button class="btn btn-outline btn-info"
-                                    onclick="window.location.href='{{ url_for('show_ordinacija', ordinacija=ordinacija.ime) }}'"
-                                    style="font-size: 20px; margin-top: -70px"
-                                    style="width: 155px">Več informacij
-                            </button>
+                          <button class="btn btn-outline btn-info"
+        onclick="window.location.href='{{ url_for('show_ordinacija', ordinacija=ordinacija.ime) }}'"
+        style="font-size: 20px; margin-top: -70px; width: 155px; background-color: #2EB872">Več informacij
+</button>
+
                         </th>
                     </tr>
                     </thead>
@@ -214,7 +249,7 @@ table td {
                     </tr>
                     {% for ponudba in ordinacija.ponudba %}
 
-                    <tr class="menu-container table-hover" style="display: none; background-color: #2c242c;">
+                    <tr class="menu-container table-hover" style="display: none; background-color: #0086e3  ;">
                         <form id="idji">
                             <td>
                                 <p style="font-size: 20px;  margin-top: 20px">{{ ponudba.naziv }}{% for zdravnik in
@@ -234,7 +269,7 @@ table td {
                                         data-ordinacija-id="{{ordinacija.id}}"
                                         id="koledargumb{{ponudba.id}}{{ordinacija.id}}"
                                         onclick="setFormValues([{{ponudba.id}}, {{ordinacija.id}}])"
-                                        style="font-size: 20px; margin-top: 17px"
+                                        style="font-size: 20px; margin-top: 17px; background-color:#2EB872 "
                                         type="button">Izberite ta pregled
 
                                 </button>
@@ -252,12 +287,12 @@ table td {
                 </table>
                 {% endfor %}
 
-            </div></div>
+            </div>
              <div class="col-md-2" style="margin-top: 40px;">
             <!-- Sidebar with the description -->
                                         <h5 class="card-title">Kaj je {{ specialty }}?</h5>
                     <br>
-                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed maximus sapien eu purus sagittis posuere. Integer mollis elit eget tellus hendrerit tristique. Sed eget libero sit amet n</p></div>
+                    <p class="card-text">{{opis}}</p></div>
             </div></div>
     </div>
 </div>

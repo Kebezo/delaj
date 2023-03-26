@@ -9,20 +9,20 @@ class RegisterForm(FlaskForm):
     def validate_username(self, username_to_check):
         user = User.query.filter_by(username=username_to_check.data).first()
         if user:
-            raise ValidationError('Username already exists')
+            raise ValidationError('Uporabniško ime že obstaja')
 
     def validate_kzzs(self, kzzs_to_check):
         kzzs = User.query.filter_by(kzzs=kzzs_to_check.data).first()
         if kzzs:
-            raise ValidationError('Kzzs already exists')
+            raise ValidationError('Kzzs že obstaja')
     def validate_email_address(self, email_address_to_check):
         email_address = User.query.filter_by(email_address=email_address_to_check.data).first()
         if email_address:
-            raise ValidationError('Email Address already exists')
+            raise ValidationError('Email ime že obstaja')
 
     username = StringField(label='Uporabniško ime:', validators=[Length(min=2, max=30), DataRequired()])
     email_address = StringField(label='E-mail:', validators=[Email(), DataRequired()])
-    kzzs = StringField(label='Kzzs števlika:', validators=[Length(min=9, max=9), DataRequired()])
+    kzzs = StringField(label='ZZZS števlika:', validators=[Length(min=9, max=9), DataRequired()])
     password1 = PasswordField(label='Geslo:', validators=[Length(min=6), DataRequired()])
     password2 = PasswordField(label='Ponovite geslo:', validators=[EqualTo('password1'), DataRequired()])
     submit = SubmitField(label='Ustvarite račun:')

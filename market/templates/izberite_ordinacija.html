@@ -5,36 +5,41 @@ Izberite Ordinacijo
 <head>
     {% block content%}
     <style>
-#opcije {
+
+ #opcije {
   display: flex;
   justify-content: flex-start;
   width: 400px;
 }
 
 #opcije a {
-  background-color: #17a2b8;
+  background-color: #f0f0f0;
   font-size: 20px;
-  color: #fff;
+   color: #000;
   padding: 10px;
   text-decoration: none;
 }
 
 #opcije a.active {
-  background-color: #f0f0f0;
+  background-color: #2EB872;
   font-size: 20px;
-  color: #000;
+
+  color: #fff;
 }
 
 #iskalnik {
-  background-color: #f0f0f0;
+  background-color: #2EB872;
   padding: 40px;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 1000px;
-}
 
+}
+#shearch{
+  margin: auto; /* centers the container vertically */
+
+}
 #iskalnik p {
   font-size: 24px;
   color: black;
@@ -57,19 +62,18 @@ Izberite Ordinacijo
   font-size: 16px;
   font-weight: 500;
   padding: 20px 40px;
-  background-color: #17a2b8;
-  color: #fff;
+  background-color: #3E92CC;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
   flex-shrink: 0;
 }
-.tt-suggestion {
-  background-color: #343A40;
-  padding: 10px;
-  cursor: pointer;
-  width: 217px;
+#iskalnik p {
+  color: black;
+  margin-bottom: 10px;
 }
+
 .container{
 
   margin-top: 70px;
@@ -103,12 +107,15 @@ Izberite Ordinacijo
   display: flex;
   flex-direction: column;
   align-items: center;
+
 }
 
 #specialty-grid img {
   width: 100px;
   height: 100px;
   transition: all 0.3s ease-in-out;
+   border: 2px solid #3E92CC;
+  background-color: #3E92CC;
 }
 
 #specialty-grid span {
@@ -117,24 +124,31 @@ Izberite Ordinacijo
   font-size: 16px;
   font-weight: bold;
   transition: all 0.3s ease-in-out;
+  color: #3E92CC;
 }
 
 #specialty-grid div:hover img {
   transform: scale(1.1);
-  border: 2px solid #17a2b8;
-  background-color: #17a2b8;
+  border: 2px solid #2EB872;
+  background-color: #2EB872;
   cursor: pointer;
 }
 
 #specialty-grid div:hover span {
-  color: #17a2b8;
+  color: #2EB872;
   cursor: pointer;
 }
- span {
-        color: white;
-    }
+     .breadcrumb {
+        padding: 0.5rem 1rem; /* Add padding */
+      }
 
+  .breadcrumb-item a {
+    color: gray; /* Change the color of the breadcrumb links */
+  }
 
+.breadcrumb a:hover {
+  color: #2EB872;
+}
 
     </style>
 
@@ -149,8 +163,8 @@ Izberite Ordinacijo
 <body>
 <div class="container">
     <div class="row justify-content-center mt-4">
-        <div class="">
-            <br> <h5>Najdite specialista blizu vas</h5><br>
+        <div class="" style="  width: 70%;">
+            <br> <h4>Najdite specialista blizu vas</h4><br>
             <div id="shearch">
                 <div id="opcije">
                     <a class="active" data-tab="tab-1" href="#">Poiščite tip ordinacije</a>
@@ -188,84 +202,92 @@ Izberite Ordinacijo
                     </div>
                 </div>
             </div>
-            <br><br><br><br>
-                <div id="specialty-grid" class="row justify-content-center mt-4">
-                    <a href="/termin/Pediatrija/V">
-                        <div>
-                            <img src="https://i.ibb.co/NFrMsy5/pediatrics-100.png" alt="Specialty 1">
-                            <span>Pediatrija</span>
-                        </div>
-         </a>
-                        <a href="/termin/Ortopedija/V">
-                            <div>
-                                <img src="https://i.ibb.co/j5rcT7Z/orthopedic-surgery-100.png" alt="Specialty 1">
-                                <span>Ortopedija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Notranje bolezni/V">
-                            <div>
-                                <img src="https://i.ibb.co/LzS545K/internal-medicine-100.png" alt="Specialty 9">
-                                <span>Notranje bolezni</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Splošna kirurgija/V">
-                            <div>
-                                <img src="https://i.ibb.co/NNWPyrH/general-surgery-100.png" alt="Specialty 3">
-                                <span>Splošna kirurgija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Ginekologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/WFHCpnm/obgyn-obstetrics-gynecology-100.png" alt="Specialty 4">
-                                <span>Ginekologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Nevrologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/rv1WgKm/neurology-100.png" alt="Specialty 5">
-                                <span>Nevrologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Dermatologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/3sPXHvt/dermatology-100.png" alt="Specialty 6">
-                                <span>Dermatologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Alergologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/fHzJzFz/allergy-immunology-100.png" alt="Specialty 7">
-                                <span>Alergologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Kardiologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/64YZcrp/cardiology-100.png" alt="Specialty 8">
-                                <span>Kardiologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Otorinolaringologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/ctKMsKW/ent-otolaryngology-100.png" alt="Specialty 9">
-                                <span>Otorinolaringologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Hematologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/3rN0T7j/hematology-oncology-100.png" alt="Specialty 9">
-                                <span>Hematologija</span>
-                            </div>
-                        </a>
-                        <a href="/termin/Gastroenterologija/V">
-                            <div>
-                                <img src="https://i.ibb.co/DfzTz79/gastroenterology-100.png" alt="Specialty 9">
-                                <span>Gastroenterologija</span>
-                            </div>
-                        </a>
-                </div>
-
+              <nav aria-label="breadcrumb" style="margin-top: 40px;">
+        <ol class="breadcrumb" style="height: 40px;">
+          <li class="breadcrumb-item"><a href="/home">Domov</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><b>Poiščite specialista</b></li>
+        </ol>
+      </nav>
+            <br>
+            <h5>Popularni specialistsi:</h5>
+            <br>
+            <div id="specialty-grid" class="row justify-content-center mt-4">
+                <a href="/termin/Pediatrija/V">
+                    <div>
+                        <img src="https://i.ibb.co/NFrMsy5/pediatrics-100.png" alt="Specialty 1">
+                        <span>Pediatrija</span>
+                    </div>
+                </a>
+                <a href="/termin/Ortopedija/V">
+                    <div>
+                        <img src="https://i.ibb.co/j5rcT7Z/orthopedic-surgery-100.png" alt="Specialty 1">
+                        <span>Ortopedija</span>
+                    </div>
+                </a>
+                <a href="/termin/Internist/V">
+                    <div>
+                        <img src="https://i.ibb.co/LzS545K/internal-medicine-100.png" alt="Specialty 9">
+                        <span>Internist</span>
+                    </div>
+                </a>
+                <a href="/termin/Splošna kirurgija/V">
+                    <div>
+                        <img src="https://i.ibb.co/NNWPyrH/general-surgery-100.png" alt="Specialty 3">
+                        <span>Splošna kirurgija</span>
+                    </div>
+                </a>
+                <a href="/termin/Ginekologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/WFHCpnm/obgyn-obstetrics-gynecology-100.png" alt="Specialty 4">
+                        <span>Ginekologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Nevrologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/rv1WgKm/neurology-100.png" alt="Specialty 5">
+                        <span>Nevrologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Dermatologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/3sPXHvt/dermatology-100.png" alt="Specialty 6">
+                        <span>Dermatologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Alergologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/fHzJzFz/allergy-immunology-100.png" alt="Specialty 7">
+                        <span>Alergologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Kardiologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/64YZcrp/cardiology-100.png" alt="Specialty 8">
+                        <span>Kardiologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Otorinolaringologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/ctKMsKW/ent-otolaryngology-100.png" alt="Specialty 9">
+                        <span>Otorinolaringologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Hematologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/3rN0T7j/hematology-oncology-100.png" alt="Specialty 9">
+                        <span>Hematologija</span>
+                    </div>
+                </a>
+                <a href="/termin/Gastroenterologija/V">
+                    <div>
+                        <img src="https://i.ibb.co/DfzTz79/gastroenterology-100.png" alt="Specialty 9">
+                        <span>Gastroenterologija</span>
+                    </div>
+                </a>
             </div>
+
         </div>
+    </div>
 </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js"></script>
@@ -345,6 +367,7 @@ $('#tab-1 .typeahead').typeahead({
 
 
 
+
 </script>
 
 
@@ -410,6 +433,7 @@ $(function() {
     return false;
   });
 });
+
 
 
 

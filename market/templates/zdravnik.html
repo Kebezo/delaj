@@ -38,8 +38,8 @@ Zdravnik Page
     }
 
     .modal-content {
-    background-color: #212121;
-    color: white;
+    background-color: #D3D3D3;
+    color: black;
 }
 
 .container{
@@ -59,7 +59,9 @@ td, th {
     }
 
 
-
+  .table{
+    background-color: #3E92CC; text-align: center; color: white;
+  }
 
 </style>
 
@@ -74,6 +76,7 @@ td, th {
     {% if not loop.last %},{% endif %}
 {% endfor %}
 </p>
+                        <div id="koledar"></div>
 
 
     <!-- Display appointments -->
@@ -101,12 +104,12 @@ td, th {
             <td>{{ appointment.User.kzzs }}</td>
             <td>
                 <form action="{{ url_for('confirm_appointment', id=appointment.Termin.id) }}" method="POST">
-                    <input class="btn btn-outline btn-info" type="submit" value="Potrdi pregled">
+                    <input class="btn btn-outline btn-info" type="submit" value="Potrdi pregled" style=" background-color: #2EB872;">
                 </form>
             </td>
             <td>
                 <form action="{{ url_for('zavrni_appointment', id=appointment.Termin.id) }}" method="POST">
-                    <input class="btn btn-outline btn-info" type="submit" value="Zavrni pregled">
+                    <input class="btn btn-outline btn-info" type="submit" value="Zavrni pregled" style="background-color: #dc3444;">
                 </form>
             </td>
             </td>
@@ -143,7 +146,7 @@ td, th {
             <td>{{ appointment.User.kzzs }}</td>
             <td>
                 <form action="{{ url_for('finish_appointment', id=appointment.Termin.id) }}" method="POST">
-                    <input class="btn btn-outline btn-info" type="submit" value="Potrdi pregled">
+                    <input class="btn btn-outline btn-info" type="submit" value="Potrdi pregled" style=" background-color: #2EB872;">
                 </form>
             </td>
             {% endif %}
@@ -349,6 +352,9 @@ td, th {
     </div>
 </div>
 </body>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.10.1/main.min.js'></script>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.2/main.css" rel="stylesheet">
+
 <script>
     const appointmentBox = document.querySelector('.appointment-box');
         const appointmentsTable = document.querySelector('.table');
@@ -392,7 +398,44 @@ function editPonudba(ponudbaId) {
 
 
 
+</script>
+<script>
 
+document.addEventListener('DOMContentLoaded', function () {
+    var calendarEl = document.getElementById('koledar');
 
+    var calendarEvents = [
+         {% for appointment in appointments %}
+        {% if appointment.Termin.status=='Sprejet'%}
+            {
+                id: {{appointment.Ordinacija.id}},
+                title: '{{appointment.Termin.naziv}}',
+                start: '{{appointment.Termin.datum}}T{{appointment.Termin.cas}}',
+                end: '{{appointment.Termin.datum}}T{{appointment.Termin.koncni_cas}}'
+            },
+        {% endif %}
+    {% endfor %}
+    ];
+
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'timeGridWeek',
+        events: calendarEvents,
+        headerToolbar: {
+            left: 'prev,next',
+            center: 'title'
+        },
+         timeZone: 'UTC',
+    aspectRatio: 2,
+    locale: 'sl',
+    contentHeight: 600,
+    firstDay: 1,
+        allDaySlot: false,
+        slotMinTime: '{{odpre[0]}}',
+    slotMaxTime: '{{odpre[1]}}',
+
+    });
+
+    calendar.render();
+});
 </script>
 {% endblock %}

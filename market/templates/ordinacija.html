@@ -1,117 +1,143 @@
 {% extends 'base.html' %}
 {% block title %}
-User Page
+{{ ordinacija.Ordinacija.ime }}
 {% endblock %}
 
 {% block content %}
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>{{ ordinacija.Ordinacija.ime }}</title>
-  </head>
-  <body>
-  <!-- Leaflet assets -->
- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-     crossorigin=""/>
+<style>
+
+  .table{
+    background-color: #3E92CC; text-align: center; color: white;
+  }
+    .rating-form {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .rating-form select {
+    margin-right: 5px;
+  }
+
+
+</style>
+
+<!-- Leaflet assets -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+      integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+      crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
-     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
-     crossorigin=""></script>
-  <div class="container">
-  <div class="row">
-    <div class="col-8">
-      <h1>{{ ordinacija.Ordinacija.ime }}</h1>
-      <p>Telefon: {{ ordinacija.Ordinacija.telefon }}</p>
-      <p>Email: {{ ordinacija.Ordinacija.email }}</p>
-      <p>Urnik: {{ ordinacija.Ordinacija.odpre }} do {{ ordinacija.Ordinacija.zapre }}</p>
-      <p>Naslov: {{ ordinacija.Naslov.ulica }} {{ ordinacija.Naslov.naslov }}, {{ ordinacija.Kraj.postna }} {{ ordinacija.Kraj.ime }}</p>
-      <p>Glavni zdravnik: {{ ordinacija.Zdravnik.ime }} {{ ordinacija.Zdravnik.priimek }}</p>
-      <p>Ocena: {{ ordinacija.Ordinacija.average_rating|round(1) }}/5</p>
+        integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+        crossorigin=""></script>
+<div class="container">
+    <div class="row">
+        <div class="col-8">
+            <h1>{{ ordinacija.Ordinacija.ime }}</h1>
+            <p>Telefon: {{ ordinacija.Ordinacija.telefon }}</p>
+            <p>Email: {{ ordinacija.Ordinacija.email }}</p>
+            <p>Urnik: {{ ordinacija.Ordinacija.odpre }} do {{ ordinacija.Ordinacija.zapre }}</p>
+            <p>Naslov: {{ ordinacija.Naslov.ulica }} {{ ordinacija.Naslov.naslov }}, {{ ordinacija.Kraj.postna }} {{
+                ordinacija.Kraj.ime }}</p>
+            <p>Glavni zdravnik: {{ ordinacija.Zdravnik.ime }} {{ ordinacija.Zdravnik.priimek }}</p>
+            <p>Ocena: {{ ordinacija.Ordinacija.average_rating|round(1) }}/5</p>
+        </div>
+        <div class="col-4">
+            <br>
+            <div id="map{{ ordinacija.Ordinacija.id }}"
+                 style="width: 350px; height: 450px; border: 10px solid #3E92CC;"></div>
+        </div>
     </div>
-    <div class="col-4">
-        <br>
-      <div id="map{{ ordinacija.Ordinacija.id }}" style="width: 350px; height: 450px; border: 10px solid #333;"></div>
-    </div>
-  </div>
 
-  <div class="container">
-   {% if appointments %}
-  <h2>Vaši prihodnji termini s to ordinacijo</h2>
-  <table class="table" style="color: white;">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Time</th>
-        <th>Status</th>
-        <th>Vrsta</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for appointment in appointments %}
+
+    {% if appointments %}
+    <h2>Vaši prihodnji termini s to ordinacijo</h2>
+    <table class="table table-hover table" style="color: white;">
+        <thead>
         <tr>
-          <td>{{ appointment.Termin.datum | datetimeformat}}</td>
-          <td>{{ appointment.Termin.cas }}</td>
-          <td>{{ appointment.Termin.status }}</td>
+            <th>Datum</th>
+            <th>Čas</th>
+            <th>Status</th>
+            <th>Vrsta</th>
+            <th>Prekic pregleda</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for appointment in appointments %}
+        <tr>
+            <td>{{ appointment.Termin.datum | datetimeformat}}</td>
+            <td>{{ appointment.Termin.cas }}</td>
+            <td>{{ appointment.Termin.status }}</td>
             <td>{{ appointment.Ponudba.naziv }}</td>
+            <td>
+                <form action="{{ url_for('cancel_appointment', id=appointment.Termin.id) }}" method="POST"
+                      onsubmit="return confirmCancellation();">
+                    <input type="hidden" name="ordinacija" value={{appointment.Ordinacija.id}}>
+                    <input class="btn btn-outline btn-danger" type="submit" value="Preklic">
+                </form>
+            </td>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% else %}
-  <p>No appointments found</p>
-{% endif %}
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No appointments found</p>
+    {% endif %}
 
 
-  </div>
-      <div class="container">
-   {% if past_appointments %}
-  <h2>Vaši končani termini s to ordinacijo</h2>
-  <table class="table" style="color: white;">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Status</th>
-        <th>Vrsta</th>
-        <th>Ocena</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for appointment in past_appointments %}
-    <tr>
-      <td>{{ appointment.Termin.datum | datetimeformat}}</td>
-      <td>{{ appointment.Termin.status }}</td>
-      <td>{{ appointment.Ponudba.naziv }}</td>
-      <td>
-       {% if appointment.Termin.status == 'Končano' %}
-        <form method="post" action="{{ url_for('rate_ordinacija', ordinacija_id=ordinacija.Ordinacija.id, termin_id=appointment.Termin.id) }}">
-          <input type="hidden" name="ordinacija_id" value="{{  ordinacija.Ordinacija.id }}">
-          <select name="rating">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-          </select>
-          <input type="submit" value="Ocenite">
-        </form>
-        {% elif appointment.Termin.status == 'Ocenjeno' %}
-            Ocenjeno
-         {% else %}
-            Not available
-        {% endif %}
+    {% if past_appointments %}
+    <h2>Vaši končani termini s to ordinacijo</h2>
+    <table class="table table-hover table" style="color: white; ">
+        <thead>
+        <tr>
+            <th>Datum</th>
+            <th>Čas</th>
+            <th>Pregled</th>
 
 
-          </td>
+            <th>Ocena</th>
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-{% else %}
-  <p>No appointments found</p>
-{% endif %}
-  </div>
+        </thead>
+        <tbody>
+        {% for appointment in past_appointments %}
+        <tr>
+            <td>{{ appointment.Termin.datum | datetimeformat }}</td>
+            <td>{{ appointment.Termin.cas }}</td>
+            <td>{{ appointment.Ponudba.naziv }}</td>
+
+
+            <td>
+                {% if appointment.Termin.status == 'Končano' %}
+                <form method="post"
+                      action="{{ url_for('rate_ordinacija', ordinacija_id=ordinacija.Ordinacija.id, termin_id=appointment.Termin.id) }}"
+                      class="rating-form">
+                    <input type="hidden" name="ordinacija_id" value="{{  ordinacija.Ordinacija.id }}">
+                    <select name="rating">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                    <input type="submit" value="Ocenite" class="btn btn-outline btn-sm"
+                           style="background-color: #2EB872; color: white;">
+                </form>
+
+                {% elif appointment.Termin.status == 'Ocenjeno' %}
+                Ocenjeno
+                {% else %}
+                Not available
+                {% endif %}
+
+
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No appointments found</p>
+    {% endif %}
 </div>
-
+</div>
 
 
 <script>
@@ -123,6 +149,11 @@ User Page
 
   }).addTo(map{{ ordinacija.Ordinacija.id }});
 
+ function confirmCancellation() {
+        return confirm("Potrdite preklic termina");
+    }
+
+
 
 </script>
-    {% endblock %}
+{% endblock %}
