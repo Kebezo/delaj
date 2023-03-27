@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 
 app = Flask(__name__)
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///market.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://famnsunqzhgcyy:55c707ba6311bbdb6c76e957be4858f79dbadeb7795e5bb8e4bbd56a6d7e678d@ec2-3-234-204-26.compute-1.amazonaws.com:5432/d1ubpqjkg8edrs'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://famnsunqzhgcyy:55c707ba6311bbdb6c76e957be4858f79dbadeb7795e5bb8e4bbd56a6d7e678d@ec2-3-234-204-26.compute-1.amazonaws.com:5432/d1ubpqjkg8edrs'
 #randomly genereirano hexadecimal stevilo
 app.config['SECRET_KEY'] = '52627e432fe1def0e3834e53'
 bcrypt = Bcrypt(app)
