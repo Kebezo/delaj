@@ -297,32 +297,7 @@ def login_page():
                 attempted_password=form.password.data
         ):
             login_user(attempted_user)
-            kraji_data = [
-                (1, 'Ljubljana', 1000),
-                (2, 'Maribor', 2000),
-                (3, 'Kranj', 4000),
-                (4, 'Celje', 3000),
-                (5, 'Koper', 6000),
-                (6, 'Novo mesto', 8000),
-                (7, 'Velenje', 3320),
-                (8, 'Ptuj', 2250),
-                (9, 'Trbovlje', 1420),
-                (10, 'Murska Sobota', 9000),
-                (11, 'Nova Gorica', 5000),
-                (12, 'Krško', 8270),
-                (13, 'Škofja Loka', 4220),
-                (14, 'Kamnik', 1240),
-                (15, 'Jesenice', 4270),
-                (16, 'Postojna', 6230),
-                (17, 'Domžale', 1230),
-                (18, 'Izola', 6310),
-                (19, 'Trebnje', 8210),
-                (20, 'Litija', 1270),
-            ]
-            for kraj in kraji_data:
-                db.session.execute("INSERT INTO Kraj (id, ime, postna_stevilka) VALUES (:id, :ime, :postna_stevilka)",
-                                   {'id': kraj[0], 'ime': kraj[1], 'postna_stevilka': kraj[2]})
-            db.session.commit()
+            
             flash(f'Čestitam! Logirani ste kot: {attempted_user.username}', category='success')
             if attempted_user.role == "pacient":
                 from datetime import datetime, timedelta
