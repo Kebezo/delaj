@@ -297,7 +297,7 @@ def login_page():
                 attempted_password=form.password.data
         ):
             login_user(attempted_user)
-            
+
             flash(f'Čestitam! Logirani ste kot: {attempted_user.username}', category='success')
             if attempted_user.role == "pacient":
                 from datetime import datetime, timedelta
