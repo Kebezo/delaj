@@ -40,6 +40,7 @@ Zdravnik Page
     .modal-content {
     background-color: #D3D3D3;
     color: black;
+    margin-top: 100px;
 }
 
 .container{
@@ -199,7 +200,7 @@ td, th {
                         <input type="text" class="form-control" id="naziv" name="naziv" required>
                     </div>
                     <div class="form-group">
-                        <label for="dolzina">Dolžina:</label>
+                        <label for="dolzina">Dolžina (v minutah):</label>
                         <input type="number" class="form-control" id="dolzina" name="dolzina" min="0" required>
                     </div>
                     <div class="form-group">
@@ -227,7 +228,7 @@ td, th {
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="deleteModalLabel">Delete Ponudba</h5>
+                <h5 class="modal-title" id="deleteModalLabel">Upravljajte z ponudbami</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -432,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
         allDaySlot: false,
         slotMinTime: '{{odpre[0]}}',
     slotMaxTime: '{{odpre[1]}}',
-
+ hiddenDays: [0, 6]
     });
 
     calendar.render();

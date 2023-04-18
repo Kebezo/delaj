@@ -18,7 +18,7 @@ class RegisterForm(FlaskForm):
     def validate_email_address(self, email_address_to_check):
         email_address = User.query.filter_by(email_address=email_address_to_check.data).first()
         if email_address:
-            raise ValidationError('Email ime že obstaja')
+            raise ValidationError('Elektronski naslov že obstaja')
 
     username = StringField(label='Uporabniško ime:', validators=[Length(min=2, max=30), DataRequired()])
     email_address = StringField(label='E-mail:', validators=[Email(), DataRequired()])
